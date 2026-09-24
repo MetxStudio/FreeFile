@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- 应用私有文件区 -->
+    <files-path name="files" path="." />
+    <cache-path name="cache" path="." />
+    <external-files-path name="external_files" path="." />
+    <external-cache-path name="external_cache" path="." />
+
+    <!-- 外部存储根（需 MANAGE_EXTERNAL_STORAGE / Root 授权后可共享） -->
+    <external-path name="external_storage" path="." />
+
+    <!-- 任意内部存储路径（Root 场景分享系统文件） -->
+    <root-path name="root" path="." />
+</paths>

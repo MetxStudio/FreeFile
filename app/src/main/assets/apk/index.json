@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "description": "FreeFile 工具托盘索引。将外部工具 APK 放入 assets/apk/ 目录，并在 tools 数组中登记即可被工具托盘页面列出。注意：本应用不会在编译期解压 APK，仅在用户点击「解压工具」时把对应 APK 从 assets 复制到应用内部缓存目录，供「安装工具」使用。",
+  "tools": [
+    {
+      "id": "apk_tool",
+      "name": "Apktool M",
+      "apkFile": "apktoolm.apk",
+      "packageName": "ru.maximoff.apktool",
+      "launchActivity": "",
+      "version": "1",
+      "description": "Apk Editor & Analyzer For FreeFile"
+    },
+    {
+      "id": "acode",
+      "name": "Acode Editor",
+      "apkFile": "acode.apk",
+      "packageName": "com.foxdebug.acode",
+      "launchActivity": "",
+      "version": "",
+      "description": "Powerful Text Editor"
+    }
+  ]
+}

@@ -1,0 +1,793 @@
+根据你选择的 `CKAndroidProject/NewBlackbox`，我为你设计了一个基于 Kotlin + Jetpack Compose 的完整虚拟 APK 运行工具。该工具将集成 NewBlackbox 作为外部库，实现免安装运行 APK 的核心功能。
+
+## 项目结构
+
+```
+VirtualBox/
+├── app/
+│   ├── libs/
+│   │   ├── Bcore-release.aar          ← NewBlackbox 核心库
+│   │   └── black-reflection-release.aar ← 反射辅助库
+│   ├── build.gradle.kts
+│   ├── proguard-rules.pro
+│   └── src/main/
+│       ├── AndroidManifest.xml
+│       ├── java/com/freefile/tools/virtualbox/
+│       │   ├── VirtualBoxApp.kt
+│       │   ├── MainActivity.kt
+│       │   └── PluginManagerHelper.kt
+│       └── res/xml/
+│           ├── file_paths.xml
+│           └── virtualbox_provider.xml
+├── build.gradle.kts
+├── settings.gradle.kts
+└── gradle.properties
+```
+
+**包名**：`com.freefile.tools.virtualbox`
+**minSdk**：24
+**技术栈**：Kotlin + Jetpack Compose + NewBlackbox Core
+
+## 一、Gradle 配置
+
+### 1.1 根目录 `build.gradle.kts`
+
+```kotlin
+plugins {
+    id("com.android.application") version "8.1.4" apply false
+    id("org.jetbrains.kotlin.android") version "1.9.22" apply false
+}
+
+tasks.register("clean", Delete::class) {
+    delete(rootProject.buildDir)
+}
+```
+
+### 1.2 `settings.gradle.kts`
+
+```kotlin
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+        maven { url = uri("https://jitpack.io") }
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven { url = uri("https://jitpack.io") }
+    }
+}
+rootProject.name = "VirtualBox"
+include(":app")
+```
+
+### 1.3 `app/build.gradle.kts`
+
+```kotlin
+plugins {
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+}
+
+android {
+    namespace = "com.freefile.tools.virtualbox"
+    compileSdk = 34
+
+    defaultConfig {
+        applicationId = "com.freefile.tools.virtualbox"
+        minSdk = 24
+        targetSdk = 28          // NewBlackbox 官方建议降级到 28 以获得最佳兼容性
+        versionCode = 1
+        versionName = "1.0"
+
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64")
+        }
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    kotlinOptions { jvmTarget = "17" }
+
+    buildFeatures { compose = true }
+    composeOptions { kotlinCompilerExtensionVersion = "1.5.8" }
+
+    packaging {
+        resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
+    }
+}
+
+dependencies {
+    // ===== NewBlackbox 核心库（AAR 本地依赖）=====
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.aar"))))
+
+    // ===== Jetpack Compose =====
+    implementation(platform("androidx.compose:compose-bom:2024.02.00"))
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.activity:activity-compose:1.8.2")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
+
+    // ===== 基础 =====
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+}
+```
+
+> **注意**：NewBlackbox 官方建议将 `targetSdkVersion` 降级到 **28 或以下**，以获得更好的兼容性。AAR 文件需要从 NewBlackbox 源码编译获取（见第六节）。
+
+### 1.4 `app/proguard-rules.pro`
+
+```proguard
+# NewBlackbox 核心类保留
+-keep class top.niunaijun.blackbox.** { *; }
+-keep class top.niunaijun.blackreflection.** { *; }
+-keep class com.didi.virtualapk.** { *; }
+-dontwarn top.niunaijun.**
+-dontwarn com.didi.virtualapk.**
+
+# 反射相关
+-keepattributes *Annotation*
+-keepattributes Signature
+-keepattributes InnerClasses
+-keep class **.R$* { *; }
+```
+
+## 二、`AndroidManifest.xml`
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- API 24~32 需要存储权限以读取外部 APK -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
+    <!-- NewBlackbox 需要网络权限用于部分虚拟应用的运行 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:name=".VirtualBoxApp"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="VirtualBox"
+        android:requestLegacyExternalStorage="true"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Material3.DayNight.NoActionBar"
+        tools:targetApi="33">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- 用于在 Android 7.0+ 上通过 FileProvider 共享 APK 文件 -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <!-- NewBlackbox 内部使用的 Provider -->
+        <provider
+            android:name="top.niunaijun.blackbox.BlackBoxProvider"
+            android:authorities="${applicationId}.blackbox"
+            android:exported="false" />
+
+    </application>
+</manifest>
+```
+
+### 2.1 `res/xml/file_paths.xml`
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <external-path name="external_files" path="." />
+    <files-path name="internal_files" path="." />
+    <cache-path name="cache_files" path="." />
+    <external-files-path name="external_app_files" path="." />
+    <external-cache-path name="external_app_cache" path="." />
+</paths>
+```
+
+## 三、Kotlin 源码
+
+### 3.1 `VirtualBoxApp.kt` — Application 初始化
+
+这是 NewBlackbox 集成的**关键入口**。必须在 `attachBaseContext` 中完成初始化，在 `onCreate` 中创建虚拟环境。
+
+```kotlin
+package com.freefile.tools.virtualbox
+
+import android.app.Application
+import android.content.Context
+import top.niunaijun.blackbox.BlackBoxCore
+import top.niunaijun.blackbox.client.ClientConfiguration
+
+class VirtualBoxApp : Application() {
+
+    override fun attachBaseContext(base: Context) {
+        super.attachBaseContext(base)
+        try {
+            // Step 1: 在 attachBaseContext 中初始化 BlackBox
+            BlackBoxCore.get().doAttachBaseContext(base, object : ClientConfiguration() {
+                override fun getHostPackageName(): String {
+                    return base.packageName
+                }
+            })
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        // Step 2: 在 onCreate 中创建虚拟环境
+        BlackBoxCore.get().doCreate()
+    }
+}
+```
+
+### 3.2 `PluginManagerHelper.kt` — 核心业务逻辑
+
+封装 NewBlackbox 的安装、启动、列表查询等 API。
+
+```kotlin
+package com.freefile.tools.virtualbox
+
+import android.content.Context
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.provider.OpenableColumns
+import top.niunaijun.blackbox.BlackBoxCore
+import java.io.File
+import java.io.FileOutputStream
+
+/**
+ * 虚拟应用信息
+ */
+data class VirtualAppInfo(
+    val label: String,
+    val packageName: String,
+    val apkPath: String?,
+    val isInstalled: Boolean   // true = 设备上已安装，false = 仅 APK 文件
+)
+
+/**
+ * 虚拟应用管理工具类
+ */
+object VirtualBoxHelper {
+
+    private const val DEFAULT_USER_ID = 0
+
+    /**
+     * 从 SAF Uri 导入 APK 文件到内部存储
+     * @return 复制后的 APK 文件路径，失败返回 null
+     */
+    fun importApkFromUri(context: Context, uri: Uri): File? {
+        return try {
+            val displayName = queryDisplayName(context, uri)
+                ?: "virtual_app_${System.currentTimeMillis()}.apk"
+
+            val destDir = File(context.filesDir, "virtual_apks")
+            if (!destDir.exists()) destDir.mkdirs()
+
+            val destFile = File(destDir, displayName)
+
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                FileOutputStream(destFile).use { output ->
+                    input.copyTo(output)
+                }
+            } ?: return null
+
+            destFile
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    /**
+     * 通过 APK 文件路径安装虚拟应用（免安装运行的核心 API）
+     * 对应 NewBlackbox: BlackBoxCore.get().installPackageAsUser(File, userId)
+     */
+    fun installFromApkFile(apkFile: File, userId: Int = DEFAULT_USER_ID): Boolean {
+        return try {
+            BlackBoxCore.get().installPackageAsUser(apkFile, userId)
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
+    /**
+     * 通过已安装应用的包名安装（设备上已存在的应用）
+     */
+    fun installFromPackageName(packageName: String, userId: Int = DEFAULT_USER_ID): Boolean {
+        return try {
+            BlackBoxCore.get().installPackageAsUser(packageName, userId)
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
+    /**
+     * 启动虚拟应用（免安装运行）
+     * 对应 NewBlackbox: BlackBoxCore.get().launchApk(packageName, userId)
+     */
+    fun launchApp(packageName: String, userId: Int = DEFAULT_USER_ID): Boolean {
+        return try {
+            BlackBoxCore.get().launchApk(packageName, userId)
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
+    /**
+     * 获取 BlackBox 内已安装的虚拟应用列表
+     */
+    fun getInstalledVirtualApps(userId: Int = DEFAULT_USER_ID): List<VirtualAppInfo> {
+        return try {
+            val packages = BlackBoxCore.get()
+                .getInstalledPackages(PackageManager.GET_ACTIVITIES, userId)
+
+            packages.mapNotNull { pkg ->
+                val appInfo = pkg.applicationInfo ?: return@mapNotNull null
+                val pm = VirtualBoxApp::class.java.let { null } ?: return@mapNotNull null
+
+                VirtualAppInfo(
+                    label = appInfo.loadLabel(null).toString(),
+                    packageName = pkg.packageName,
+                    apkPath = appInfo.sourceDir,
+                    isInstalled = true
+                )
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
+    }
+
+    /**
+     * 从 APK 文件解析应用信息（不安装，仅用于展示）
+     */
+    fun parseApkInfo(context: Context, apkFile: File): VirtualAppInfo? {
+        return try {
+            val pm = context.packageManager
+            val packageInfo = pm.getPackageArchiveInfo(
+                apkFile.absolutePath,
+                PackageManager.GET_ACTIVITIES
+            ) ?: return null
+
+            val appInfo = packageInfo.applicationInfo ?: return null
+            appInfo.sourceDir = apkFile.absolutePath
+            appInfo.publicSourceDir = apkFile.absolutePath
+
+            VirtualAppInfo(
+                label = pm.getApplicationLabel(appInfo).toString(),
+                packageName = packageInfo.packageName,
+                apkPath = apkFile.absolutePath,
+                isInstalled = false
+            )
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    /**
+     * 查询 SAF Uri 的显示名称
+     */
+    private fun queryDisplayName(context: Context, uri: Uri): String? {
+        return context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (nameIndex >= 0 && cursor.moveToFirst()) cursor.getString(nameIndex) else null
+        }
+    }
+}
+```
+
+### 3.3 `MainActivity.kt` — Compose UI
+
+```kotlin
+package com.freefile.tools.virtualbox
+
+import android.net.Uri
+import android.os.Bundle
+import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Android
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+
+class MainActivity : ComponentActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            MaterialTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    VirtualBoxScreen()
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun VirtualBoxScreen() {
+        val context = LocalContext.current
+        val scope = lifecycleScope
+
+        var virtualApps by remember { mutableStateOf<List<VirtualAppInfo>>(emptyList()) }
+        var statusMessage by remember { mutableStateOf("就绪") }
+        var isLoading by remember { mutableStateOf(false) }
+
+        // 刷新已安装的虚拟应用列表
+        fun refreshList() {
+            scope.launch {
+                val list = withContext(Dispatchers.IO) {
+                    VirtualBoxHelper.getInstalledVirtualApps()
+                }
+                virtualApps = list
+                statusMessage = "已加载 ${list.size} 个虚拟应用"
+            }
+        }
+
+        // 首次加载时刷新
+        LaunchedEffect(Unit) { refreshList() }
+
+        // SAF 文件选择器
+        val pickApkLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.OpenDocument()
+        ) { uri: Uri? ->
+            uri ?: return@rememberLauncherForActivityResult
+            isLoading = true
+            statusMessage = "正在导入并安装 APK…"
+
+            scope.launch {
+                val result = withContext(Dispatchers.IO) {
+                    // Step 1: 复制 APK 到内部存储
+                    val apkFile = VirtualBoxHelper.importApkFromUri(context, uri)
+                        ?: return@withContext "导入失败：无法读取文件"
+
+                    // Step 2: 解析 APK 信息
+                    val appInfo = VirtualBoxHelper.parseApkInfo(context, apkFile)
+                        ?: return@withContext "导入失败：无法解析 APK"
+
+                    // Step 3: 调用 NewBlackbox 安装（免安装运行）
+                    val installed = VirtualBoxHelper.installFromApkFile(apkFile)
+                    if (installed) {
+                        "安装成功：${appInfo.label} (${appInfo.packageName})"
+                    } else {
+                        "安装失败：请检查 APK 是否兼容或架构是否匹配"
+                    }
+                }
+
+                statusMessage = result
+                isLoading = false
+                refreshList()
+            }
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            // ===== 标题栏 =====
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Android,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(32.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("VirtualBox", fontWeight = FontWeight.Bold, fontSize = 22.sp)
+                    Text(
+                        "免安装 APK 运行工具",
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                IconButton(onClick = { refreshList() }) {
+                    Icon(Icons.Default.Refresh, contentDescription = "刷新")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // ===== 状态提示 =====
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            ) {
+                Text(
+                    text = statusMessage,
+                    modifier = Modifier.padding(12.dp),
+                    fontSize = 13.sp
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // ===== 导入按钮 =====
+            Button(
+                onClick = {
+                    pickApkLauncher.launch(
+                        arrayOf("application/vnd.android.package-archive")
+                    )
+                },
+                enabled = !isLoading,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                } else {
+                    Icon(Icons.Default.Add, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+                Text(if (isLoading) "处理中…" else "导入 APK 并安装到虚拟环境")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "虚拟应用列表 (${virtualApps.size})",
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 15.sp
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // ===== 应用列表 =====
+            if (virtualApps.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "暂无虚拟应用\n请导入 APK 文件",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontSize = 14.sp
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(virtualApps, key = { it.packageName }) { app ->
+                        VirtualAppCard(
+                            app = app,
+                            onLaunch = {
+                                val success = VirtualBoxHelper.launchApp(app.packageName)
+                                if (!success) {
+                                    Toast.makeText(
+                                        context,
+                                        "启动失败：${app.label}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun VirtualAppCard(
+        app: VirtualAppInfo,
+        onLaunch: () -> Unit
+    ) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Android,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(40.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = app.label,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 15.sp
+                    )
+                    Text(
+                        text = app.packageName,
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = if (app.isInstalled) "来源：设备已安装" else "来源：APK 文件",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                IconButton(onClick = onLaunch) {
+                    Icon(
+                        Icons.Default.PlayArrow,
+                        contentDescription = "运行",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
+    }
+}
+```
+
+## 四、获取 NewBlackbox AAR 库文件
+
+`CKAndroidProject/NewBlackbox` 并未发布到 Maven/JitPack，你需要**从源码编译**获取 AAR 文件：
+
+### 4.1 克隆并编译
+
+```bash
+# 1. 克隆仓库
+git clone https://github.com/CKAndroidProject/NewBlackbox.git
+cd NewBlackbox
+
+# 2. 编译 Bcore 模块（核心库）
+./gradlew :Bcore:assembleRelease
+
+# 3. 编译 black-reflection 模块
+./gradlew :black-reflection:assembleRelease
+```
+
+### 4.2 复制 AAR 到你的项目
+
+编译完成后，找到以下两个 AAR 文件：
+
+```
+NewBlackbox/Bcore/build/outputs/aar/Bcore-release.aar
+NewBlackbox/black-reflection/build/outputs/aar/black-reflection-release.aar
+```
+
+将它们复制到你项目的 `app/libs/` 目录下。
+
+### 4.3 如果编译失败
+
+NewBlackbox 的构建环境要求较高（需要 JDK 17、Android SDK 34+、NDK 特定版本）。如果编译遇到问题，也可以：
+
+1. **直接使用 NewBlackbox 官方 APK** 作为参考，但它不是 AAR 形式，无法直接集成。
+2. **使用社区编译好的 AAR**，在项目的 Issues 或 Releases 中查找。
+3. **使用 JitPack 方式**（如果仓库支持）：
+
+```kotlin
+// 在 settings.gradle.kts 的 repositories 中添加
+maven { url = uri("https://jitpack.io") }
+
+// 在 app/build.gradle.kts 中添加
+implementation("com.github.CKAndroidProject:NewBlackbox:版本号")
+```
+
+## 五、使用步骤
+
+1. **准备 AAR 库**：按照第四节编译并复制 `Bcore-release.aar` 和 `black-reflection-release.aar` 到 `app/libs/`。
+
+2. **编译宿主 App**：
+
+```bash
+./gradlew :app:assembleDebug
+```
+
+3. **安装到设备**：将生成的 APK 安装到 Android 手机（Android 5.0 ~ 14.0）。
+
+4. **导入 APK**：打开 VirtualBox App，点击"导入 APK 并安装到虚拟环境"，选择要运行的目标 APK 文件。
+
+5. **运行**：安装成功后，在虚拟应用列表中找到该应用，点击播放按钮即可**免安装运行**。
+
+## 六、关键 API 说明
+
+| 功能 | API | 说明 |
+|---|---|---|
+| 初始化 | `BlackBoxCore.get().doAttachBaseContext(base, config)` | 在 `attachBaseContext` 中调用 |
+| 创建环境 | `BlackBoxCore.get().doCreate()` | 在 `onCreate` 中调用 |
+| 免安装安装 | `installPackageAsUser(File apkFile, int userId)` | **核心 API**，传入 APK 路径即可安装 |
+| 包名安装 | `installPackageAsUser(String pkg, int userId)` | 安装设备上已存在的应用 |
+| 启动应用 | `launchApk(String pkg, int userId)` | 启动虚拟应用 |
+| 获取列表 | `getInstalledPackages(flags, userId)` | 获取虚拟环境中的应用列表 |
+| 用户管理 | `getUsers()` | 获取虚拟用户列表 |
+
+## 七、已知限制与注意事项
+
+| 限制 | 说明 |
+|---|---|
+| **Android 版本** | 支持 Android 5.0 ~ 14.0，不支持 4.x |
+| **targetSdk 建议** | 降级到 28 或以下可获得更好兼容性 |
+| **稳定性** | 作者声明"稳定性未经大量测试，仅供学习交流" |
+| **架构兼容** | 需要 APK 架构与设备匹配（ARM64/ARMv7/x86） |
+| **存储权限** | Android 6.0+ 需要运行时请求存储权限 |
+| **NDK 依赖** | NewBlackbox 使用原生 Hook（Dobby、xDL），编译时需要 NDK |
+| **进程重启问题** | 已知问题：进程重启可能产生重复 Activity |

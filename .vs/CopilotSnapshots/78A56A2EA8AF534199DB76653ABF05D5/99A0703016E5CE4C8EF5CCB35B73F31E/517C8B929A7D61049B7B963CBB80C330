@@ -1,0 +1,194 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- ==================== 存储与文件访问 ==================== -->
+    <!-- Android 9 及以下传统存储权限；Android 10+ 走分区存储/SAF -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
+    <!-- Android 11+ 所有文件访问（文件管理器核心能力，需用户在设置中授权） -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+
+    <!-- Android 13+ 细分媒体权限（图片/视频/音频），供后续多媒体浏览使用 -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+
+    <!-- ==================== 网络与局域网快传 ==================== -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <!-- Android 12+ 局域网设备发现需精确附近设备权限（可选） -->
+    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES"
+        android:usesPermissionFlags="neverForLocation"
+        tools:targetApi="33" />
+
+    <!-- ==================== APK 安装与包可见性（逆向模块） ==================== -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+    <!-- ==================== Shizuku（高权限 IPC 桥梁，运行时校验） ==================== -->
+    <uses-permission android:name="rikka.shizuku.permission.permission.api.v23" />
+
+    <!-- ==================== 前台服务（文件传输/FTP 服务器） ==================== -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"
+        tools:targetApi="34" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- ==================== 桌面快捷方式 ==================== -->
+    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"
+        tools:ignore="InstallShortcuts" />
+
+    <application
+        android:name=".FreeFileApp"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@drawable/icon"
+        android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:requestLegacyExternalStorage="true"
+        android:roundIcon="@drawable/icon"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.FreeFile"
+        android:usesCleartextTraffic="true"
+        tools:targetApi="33">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
+            android:theme="@style/Theme.FreeFile">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- 终端：独立任务栈，taskAffinity 与主界面隔离 -->
+        <activity
+            android:name=".ui.TerminalActivity"
+            android:exported="false"
+            android:label="@string/terminal_title"
+            android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
+            android:taskAffinity="${applicationId}.terminal"
+            android:theme="@style/Theme.FreeFile" />
+
+        <!-- 文本编辑器：独立任务栈 -->
+        <activity
+            android:name=".ui.TextEditorActivity"
+            android:exported="false"
+            android:label="@string/text_editor_title"
+            android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
+            android:taskAffinity="${applicationId}.editor"
+            android:theme="@style/Theme.FreeFile" />
+
+        <!-- 富文本编辑器：独立任务栈，支持 HTML / Markdown -->
+        <activity
+            android:name=".tools.richeditor.RichEditorActivity"
+            android:exported="false"
+            android:label="@string/rich_editor_title"
+            android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
+            android:taskAffinity="${applicationId}.richeditor"
+            android:theme="@style/Theme.FreeFile" />
+
+        <!-- 工具托盘：独立任务栈 -->
+        <activity
+            android:name=".ui.ToolTrayActivity"
+            android:exported="false"
+            android:label="@string/tool_tray_title"
+            android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
+            android:taskAffinity="${applicationId}.tooltary"
+            android:theme="@style/Theme.FreeFile" />
+
+        <!-- 打开方式：承载单击文件的「分享/系统打开/内置功能」6 选项，结果回传主页 -->
+        <activity
+            android:name=".ui.OpenWithActivity"
+            android:exported="false"
+            android:label="@string/open_with_title"
+            android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
+            android:theme="@style/Theme.FreeFile" />
+
+        <!-- 设置：独立任务栈 -->
+        <activity
+            android:name=".ui.SettingsActivity"
+            android:exported="false"
+            android:label="@string/settings_title"
+            android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
+            android:taskAffinity="${applicationId}.settings"
+            android:theme="@style/Theme.FreeFile" />
+
+        <!-- 脚本工具：独立任务栈 -->
+        <activity
+            android:name=".ui.ScriptActivity"
+            android:exported="false"
+            android:label="@string/tool_script"
+            android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
+            android:taskAffinity="${applicationId}.script"
+            android:theme="@style/Theme.FreeFile" />
+
+        <!-- 快传：独立任务栈 -->
+        <activity
+            android:name=".ui.TransferActivity"
+            android:exported="false"
+            android:label="@string/tool_share"
+            android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
+            android:taskAffinity="${applicationId}.transfer"
+            android:theme="@style/Theme.FreeFile" />
+
+        <!-- VirtualBox：免安装 APK 运行工具，独立任务栈 -->
+        <activity
+            android:name=".tools.virtualbox.MainActivity"
+            android:exported="false"
+            android:label="@string/vbox_title"
+            android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
+            android:taskAffinity="${applicationId}.virtualbox"
+            android:theme="@style/Theme.FreeFile" />
+
+        <!-- NewBlackbox 内部使用的 Provider（虚拟应用安装/启动所需） -->
+        <!-- TODO: AAR 就绪后取消注释
+        <provider
+            android:name="top.niunaijun.blackbox.BlackBoxProvider"
+            android:authorities="${applicationId}.blackbox"
+            android:exported="false" /> -->
+
+        <!-- 文件分享 / 桌面快捷方式所需的 FileProvider -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <!-- Shizuku 官方 Provider（Shizuku 服务发现与权限弹窗必需） -->
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:multiprocess="false"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+
+        <!-- Per-app language 持久化服务（设置页切换语言，AndroidX 自动存储） -->
+        <service
+            android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
+            android:enabled="false"
+            android:exported="false">
+            <meta-data
+                android:name="autoStoreLocales"
+                android:value="true" />
+        </service>
+    </application>
+
+</manifest>

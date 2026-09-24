@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  网络安全配置：局域网快传需要明文 HTTP（http://192.168.*:8765）。
+  - Android 9+ 默认禁止明文流量，此处显式放行私网 IP 段
+    192.168.0.0/16、10.0.0.0/8、172.16.0.0/12 与 loopback。
+  - 公网域名仍走 HTTPS（不在此放行）。
+-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">127.0.0.1</domain>
+        <domain includeSubdomains="true">10.0.0.0</domain>
+        <domain includeSubdomains="true">172.16.0.0</domain>
+        <domain includeSubdomains="true">192.168.0.0</domain>
+    </domain-config>
+    <!-- 兜底：允许私网 IPv4 直连（BaseConfig 全局放行，保险起见） -->
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>
