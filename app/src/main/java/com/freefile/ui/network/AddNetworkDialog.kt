@@ -103,11 +103,18 @@ fun AddNetworkDialog(
                 )
 
                 when (type) {
-                    RemoteTypes.SMB -> OutlinedTextField(
-                        value = basePath, onValueChange = { basePath = it },
-                        label = { Text(stringResource(R.string.net_smb_share)) },
-                        modifier = Modifier.fillMaxWidth(), singleLine = true
-                    )
+                    RemoteTypes.SMB -> {
+                        OutlinedTextField(
+                            value = basePath, onValueChange = { basePath = it },
+                            label = { Text(stringResource(R.string.net_smb_share)) },
+                            modifier = Modifier.fillMaxWidth(), singleLine = true
+                        )
+                        OutlinedTextField(
+                            value = domain, onValueChange = { domain = it },
+                            label = { Text(stringResource(R.string.net_smb_domain)) },
+                            modifier = Modifier.fillMaxWidth(), singleLine = true
+                        )
+                    }
                     RemoteTypes.S3 -> {
                         OutlinedTextField(
                             value = basePath, onValueChange = { basePath = it },

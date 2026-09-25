@@ -242,9 +242,12 @@ fun MainScreen() {
         context.startActivity(intent)
     }
 
-    fun launchToolTray(pendingFilePath: String? = null) {
+    fun launchToolTray(pendingFilePaths: List<String> = emptyList()) {
         val intent = android.content.Intent(context, com.freefile.ui.ToolTrayActivity::class.java)
-            .putExtra(com.freefile.ui.ToolTrayActivity.EXTRA_PENDING_FILE_PATH, pendingFilePath)
+            .putStringArrayListExtra(
+                com.freefile.ui.ToolTrayActivity.EXTRA_PENDING_FILE_PATHS,
+                ArrayList(pendingFilePaths)
+            )
             .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(intent)
     }
@@ -269,9 +272,23 @@ fun MainScreen() {
 
     // 打开方式 Activity：单击文件 / 多选面板「内置模块打开」统一入口
     fun launchOpenWith(entry: VfsEntry) {
-        val intent = android.content.Intent(context, com.freefile.ui.OpenWithActivity::class.java)
-            .putExtra(com.freefile.ui.OpenWithActivity.EXTRA_FILE_PATH, entry.path)
-        openWithLauncher.launch(intent)
+        openWithLauncher.launch(
+            android.content.Intent(context, com.freefile.ui.OpenWithActivity::class.java)
+                .putStringArrayListExtra(
+                    com.freefile.ui.OpenWithActivity.EXTRA_FILE_PATHS,
+                    arrayListOf(entry.path)
+                )
+        )
+    }
+
+    fun launchOpenWith(entries: List<VfsEntry>) {
+        openWithLauncher.launch(
+            android.content.Intent(context, com.freefile.ui.OpenWithActivity::class.java)
+                .putStringArrayListExtra(
+                    com.freefile.ui.OpenWithActivity.EXTRA_FILE_PATHS,
+                    ArrayList(entries.map { it.path })
+                )
+        )
     }
 
     val permSnapshot by permissionManager.snapshot.collectAsState()
@@ -890,7 +907,7 @@ fun MainScreen() {
                         onClick = {
                             showActionSheet = false
                             scope.launch {
-                                selected.forEach { FileOpener.shareFile(context, it, ::toast) }
+                                FileOpener.shareFiles(context, selected, ::toast)
                                 activeVm.recordRecentFile(selected.firstOrNull()?.path ?: "")
                             }
                         }
@@ -911,11 +928,11 @@ fun MainScreen() {
                         title = stringResource(R.string.open_with_builtin),
                         onClick = {
                             showActionSheet = false
-                            val target = selected.firstOrNull() ?: return@OpenSheetItem
-                            scope.launch { activeVm.recordRecentFile(target.path) }
-                            launchOpenWith(target)
-                        },
-                        enabled = singleSel
+                            selected.firstOrNull()?.let { target ->
+                                scope.launch { activeVm.recordRecentFile(target.path) }
+                            }
+                            launchOpenWith(selected)
+                        }
                     )
                     // —— 任务 6 / 5 入口：终端 / 工具托盘 ——
                     OpenSheetItem(
@@ -924,17 +941,15 @@ fun MainScreen() {
                         onClick = {
                             showActionSheet = false
                             launchTerminal(selected.map { it.path })
-                        },
-                        enabled = singleSel
+                        }
                     )
                     OpenSheetItem(
                         icon = Icons.Rounded.Apps,
                         title = stringResource(R.string.tool_tray_open_with_file),
                         onClick = {
                             showActionSheet = false
-                            launchToolTray(selected.firstOrNull()?.path)
-                        },
-                        enabled = singleSel
+                            launchToolTray(selected.map { it.path })
+                        }
                     )
                     Divider(modifier = Modifier.padding(vertical = 6.dp))
                     // —— 文件操作（任务 7：复用主页底部按钮逻辑）——

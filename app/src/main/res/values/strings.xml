@@ -335,6 +335,18 @@
     <string name="tool_tray_launch_no_pkg">未配置包名，无法启动</string>
     <string name="tool_tray_launch_no_intent">未找到 %1$s 的启动入口，请先安装或配置 Intent</string>
 
+    <!-- 工具托盘：待传递文件信息面板 -->
+    <string name="tool_tray_pending_file_title">待传递文件</string>
+    <string name="tool_tray_pending_files_count">%1$d 个文件</string>
+    <string name="tool_tray_pending_file_toggle">展开/收起文件信息</string>
+    <string name="tool_tray_pending_file_name">文件名</string>
+    <string name="tool_tray_pending_file_path">原始路径</string>
+    <string name="tool_tray_pending_file_size">大小</string>
+    <string name="tool_tray_pending_file_size_unknown">未知</string>
+    <string name="tool_tray_pending_file_mime">MIME 类型</string>
+    <string name="tool_tray_pending_file_resolvable">可传递给其他应用</string>
+    <string name="tool_tray_pending_file_unresolvable">无法解析，无法传递</string>
+
     <!-- 工具托盘：APK 启动器（任务 5） -->
     <string name="apk_launcher_title">APK 启动器</string>
     <string name="apk_launcher_subtitle">解析 APK 并自定义 Intent 启动参数</string>
@@ -390,6 +402,7 @@
     <string name="net_username">用户名（可留空）</string>
     <string name="net_password">密码（可留空）</string>
     <string name="net_smb_share">共享名</string>
+    <string name="net_smb_domain">域（可留空）</string>
     <string name="net_s3_bucket">Bucket</string>
     <string name="net_s3_region">Region</string>
     <string name="net_s3_endpoint">自定义 Endpoint（OSS 等，可留空）</string>

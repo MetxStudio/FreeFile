@@ -335,6 +335,18 @@
     <string name="tool_tray_launch_no_pkg">No package name configured; cannot launch</string>
     <string name="tool_tray_launch_no_intent">No launch entry for %1$s; install it or configure the intent</string>
 
+    <!-- Tool tray: pending file info panel -->
+    <string name="tool_tray_pending_file_title">Pending File</string>
+    <string name="tool_tray_pending_files_count">%1$d files</string>
+    <string name="tool_tray_pending_file_toggle">Expand/collapse file info</string>
+    <string name="tool_tray_pending_file_name">Name</string>
+    <string name="tool_tray_pending_file_path">Original path</string>
+    <string name="tool_tray_pending_file_size">Size</string>
+    <string name="tool_tray_pending_file_size_unknown">Unknown</string>
+    <string name="tool_tray_pending_file_mime">MIME type</string>
+    <string name="tool_tray_pending_file_resolvable">Can be passed to other apps</string>
+    <string name="tool_tray_pending_file_unresolvable">Cannot resolve; cannot pass</string>
+
     <!-- Tool tray: APK launcher (task 5) -->
     <string name="apk_launcher_title">APK Launcher</string>
     <string name="apk_launcher_subtitle">Parse APK and customize launch Intent</string>
@@ -390,6 +402,7 @@
     <string name="net_username">Username (optional)</string>
     <string name="net_password">Password (optional)</string>
     <string name="net_smb_share">Share name</string>
+    <string name="net_smb_domain">Domain (optional)</string>
     <string name="net_s3_bucket">Bucket</string>
     <string name="net_s3_region">Region</string>
     <string name="net_s3_endpoint">Custom endpoint (OSS etc., optional)</string>

@@ -53,7 +53,8 @@ import java.io.File
  * 打开方式 Activity：单击文件时弹出，集中承载原主页的「打开方式」与「内置功能打开」两个对话框。
  *
  * Intent extras:
- *  - [EXTRA_FILE_PATH] : String，要打开的文件路径（必传）
+ *  - [EXTRA_FILE_PATH]  : String，要打开的文件路径（单文件，向后兼容）
+ *  - [EXTRA_FILE_PATHS] : ArrayList<String>，要打开的文件路径列表（多文件）
  *
  * 结果回传（仅当选「解压此压缩包」时）：
  *  - resultCode = [RESULT_OK]
@@ -63,10 +64,15 @@ class OpenWithActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val filePath = intent.getStringExtra(EXTRA_FILE_PATH) ?: run {
+        // 支持多文件：优先取列表，回退到单文件
+        val filePaths = intent.getStringArrayListExtra(EXTRA_FILE_PATHS)
+            ?: listOfNotNull(intent.getStringExtra(EXTRA_FILE_PATH))
+        if (filePaths.isEmpty()) {
             finish()
             return
         }
+        // 以第一个文件作为主展示条目
+        val filePath = filePaths.first()
         val name = filePath.substringAfterLast('/')
         val entry = VfsEntry(path = filePath, name = name, isDirectory = false)
         val isArchive = ArchiveEngine.isArchiveFile(entry.name) && !entry.isDirectory
@@ -83,10 +89,22 @@ class OpenWithActivity : AppCompatActivity() {
                     isArchive = isArchive,
                     isApk = isApk,
                     onShare = {
-                        scope.launch { FileOpener.shareFile(this@OpenWithActivity, entry, ::toast); finish() }
+                        scope.launch {
+                            val entries = filePaths.map { p ->
+                                VfsEntry(path = p, name = p.substringAfterLast('/'), isDirectory = false)
+                            }
+                            FileOpener.shareFiles(this@OpenWithActivity, entries, ::toast)
+                            finish()
+                        }
                     },
                     onOpenWithMime = {
-                        scope.launch { FileOpener.openWithMime(this@OpenWithActivity, entry, ::toast); finish() }
+                        scope.launch {
+                            filePaths.forEach { p ->
+                                val e = VfsEntry(path = p, name = p.substringAfterLast('/'), isDirectory = false)
+                                FileOpener.openWithMime(this@OpenWithActivity, e, ::toast)
+                            }
+                            finish()
+                        }
                     },
                     onTextEditor = {
                         // 非文本文件先 toast 提示再打开（编辑器按字节读，给用户提示机会）
@@ -160,9 +178,13 @@ class OpenWithActivity : AppCompatActivity() {
                         finish()
                     },
                     onToolTray = {
+                        // 传递所有选中文件给工具托盘
                         startActivity(
                             Intent(this, ToolTrayActivity::class.java)
-                                .putExtra(ToolTrayActivity.EXTRA_PENDING_FILE_PATH, entry.path)
+                                .putStringArrayListExtra(
+                                    ToolTrayActivity.EXTRA_PENDING_FILE_PATHS,
+                                    ArrayList(filePaths)
+                                )
                         )
                         finish()
                     },
@@ -171,7 +193,7 @@ class OpenWithActivity : AppCompatActivity() {
                             Intent(this, TerminalActivity::class.java)
                                 .putStringArrayListExtra(
                                     TerminalActivity.EXTRA_INITIAL_PATHS,
-                                    arrayListOf(entry.path)
+                                    ArrayList(filePaths)
                                 )
                         )
                         finish()
@@ -194,6 +216,7 @@ class OpenWithActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_FILE_PATH = "file_path"
+        const val EXTRA_FILE_PATHS = "file_paths"
         const val EXTRA_EXTRACT_PATH = "extract_path"
     }
 }
@@ -277,15 +300,15 @@ private fun OpenWithScreen(
                     onClick = onExtract
                 )
             }
-            // ⑦ VirtualBox 免安装运行（仅当选中 APK 文件时启用）
-            item {
-                OpenWithItem(
-                    icon = Icons.Rounded.Android,
-                    title = stringResource(R.string.builtin_chooser_virtualbox),
-                    enabled = isApk,
-                    onClick = onVirtualBox
-                )
-            }
+            // ⑦ VirtualBox 免安装运行（已隐藏）
+            // item {
+            //     OpenWithItem(
+            //         icon = Icons.Rounded.Android,
+            //         title = stringResource(R.string.builtin_chooser_virtualbox),
+            //         enabled = isApk,
+            //         onClick = onVirtualBox
+            //     )
+            // }
         }
     }
 }

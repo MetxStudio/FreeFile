@@ -201,28 +201,28 @@ fun SettingsScreen(
 
             SectionDivider()
 
-            // ==================== 搜索 ====================
-            SectionHeader(Icons.Rounded.Search, stringResource(R.string.settings_search))
-            ClickRow(
-                icon = { Icon(Icons.Rounded.ManageSearch, null, Modifier.size(22.dp)) },
-                title = stringResource(R.string.settings_search_depth),
-                subtitle = if (settings.searchDepth <= 0)
-                    stringResource(R.string.search_depth_only_current)
-                else stringResource(R.string.search_depth_n, settings.searchDepth),
-                onClick = { showDepthDialog = true }
-            )
-            SwitchRow(
-                icon = { Icon(Icons.Rounded.Code, null, Modifier.size(22.dp)) },
-                title = stringResource(R.string.settings_search_regex),
-                subtitle = null,
-                checked = settings.searchRegex
-            ) { scope.launch { AppSettings.setSearchRegex(it) } }
-            SwitchRow(
-                icon = { Icon(Icons.Rounded.TextFields, null, Modifier.size(22.dp)) },
-                title = stringResource(R.string.settings_search_exact),
-                subtitle = null,
-                checked = settings.searchExact
-            ) { scope.launch { AppSettings.setSearchExact(it) } }
+            // ==================== 搜索（已隐藏） ====================
+            // SectionHeader(Icons.Rounded.Search, stringResource(R.string.settings_search))
+            // ClickRow(
+            //     icon = { Icon(Icons.Rounded.ManageSearch, null, Modifier.size(22.dp)) },
+            //     title = stringResource(R.string.settings_search_depth),
+            //     subtitle = if (settings.searchDepth <= 0)
+            //         stringResource(R.string.search_depth_only_current)
+            //     else stringResource(R.string.search_depth_n, settings.searchDepth),
+            //     onClick = { showDepthDialog = true }
+            // )
+            // SwitchRow(
+            //     icon = { Icon(Icons.Rounded.Code, null, Modifier.size(22.dp)) },
+            //     title = stringResource(R.string.settings_search_regex),
+            //     subtitle = null,
+            //     checked = settings.searchRegex
+            // ) { scope.launch { AppSettings.setSearchRegex(it) } }
+            // SwitchRow(
+            //     icon = { Icon(Icons.Rounded.TextFields, null, Modifier.size(22.dp)) },
+            //     title = stringResource(R.string.settings_search_exact),
+            //     subtitle = null,
+            //     checked = settings.searchExact
+            // ) { scope.launch { AppSettings.setSearchExact(it) } }
 
             SectionDivider()
 

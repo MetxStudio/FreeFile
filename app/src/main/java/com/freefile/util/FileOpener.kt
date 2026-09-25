@@ -8,6 +8,7 @@ import androidx.core.content.FileProvider
 import com.freefile.vfs.ArchiveEngine
 import com.freefile.vfs.EngineSelector
 import com.freefile.vfs.VfsEntry
+import com.freefile.vfs.remote.RemoteEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -44,7 +45,10 @@ object FileOpener {
         entry: VfsEntry,
         toast: (String) -> Unit
     ): Pair<File, String>? = withContext(Dispatchers.IO) {
-        val targetFile: File = if (ArchiveEngine.isArchivePath(entry.path)) {
+        // 压缩包内文件 / 网络位置文件 → 提取/下载到缓存目录
+        val needCache = ArchiveEngine.isArchivePath(entry.path) ||
+            RemoteEngine.isRemotePath(entry.path)
+        val targetFile: File = if (needCache) {
             try {
                 val dir = File(context.cacheDir, "open_preview").apply { mkdirs() }
                 val f = File(dir, entry.name)
@@ -77,15 +81,30 @@ object FileOpener {
 
     /** ① 分享文件：调用系统分享。 */
     suspend fun shareFile(context: Context, entry: VfsEntry, toast: (String) -> Unit) {
-        val (file, mime) = prepareSharableFile(context, entry, toast) ?: return
-        val uri = shareUri(context, file)
-        val intent = Intent(Intent.ACTION_SEND).apply {
-            type = mime
-            putExtra(Intent.EXTRA_STREAM, uri)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+        shareFiles(context, listOf(entry), toast)
+    }
+
+    /** ① 分享多个文件：调用系统分享（ACTION_SEND_MULTIPLE）。 */
+    suspend fun shareFiles(context: Context, entries: List<VfsEntry>, toast: (String) -> Unit) {
+        if (entries.isEmpty()) return
+        val pairs = entries.mapNotNull { prepareSharableFile(context, it, toast) }
+        if (pairs.isEmpty()) return
+        val uris = ArrayList(pairs.map { shareUri(context, it.first) })
+        val mime = pairs.first().second
+        val intent = if (uris.size == 1) {
+            Intent(Intent.ACTION_SEND).apply {
+                type = mime
+                putExtra(Intent.EXTRA_STREAM, uris.first())
+            }
+        } else {
+            Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+                type = mime
+                putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
+            }
         }
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
         try {
-            context.startActivity(Intent.createChooser(intent, entry.name).apply {
+            context.startActivity(Intent.createChooser(intent, entries.first().name).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             })
         } catch (e: Exception) {

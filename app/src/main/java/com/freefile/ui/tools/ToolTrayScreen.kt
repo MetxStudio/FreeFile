@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,7 +27,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.Download
+import androidx.compose.material.icons.rounded.ExpandLess
+import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.GetApp
 import androidx.compose.material.icons.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.Refresh
@@ -39,6 +43,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -66,6 +71,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.freefile.R
+import com.freefile.vfs.ArchiveEngine
+import com.freefile.vfs.EngineSelector
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -76,11 +83,11 @@ import java.io.File
  * 工具托盘页面（需求 5 + 任务 5 扩展）。
  *
  * 两种模式：
- *  - 默认模式（[pendingFilePath] == null）：读取 assets/apk/index.json 展示内置工具列表，
+ *  - 默认模式（[pendingFilePaths] 为空）：读取 assets/apk/index.json 展示内置工具列表，
  *    按顺序执行三步：解压 → 安装 → 启动；启动 Intent 可在弹窗中覆盖。
- *  - 文件路由模式（[pendingFilePath] != null）：**仍显示工具列表**，但每次启动工具时，
- *    会把 [pendingFilePath] 对应的 File Uri 与 MIME 附加到工具启动 Intent，
- *    相当于"用工具托盘里的某个工具打开该文件"。
+ *  - 文件路由模式（[pendingFilePaths] 非空）：**仍显示工具列表**，但每次启动工具时，
+ *    会把 [pendingFilePaths] 对应的 File Uri 与 MIME 附加到工具启动 Intent，
+ *    相当于"用工具托盘里的某个工具打开这些文件"。单文件用 ACTION_VIEW，多文件用 ACTION_SEND_MULTIPLE。
  *
  *    用户纠正：此路径不是「要安装的 APK」，而是「要继续作为 Intent 传给工具」的任意文件。
  *    APK 启动器逻辑移至独立入口（仅当用户明确从工具列表点"APK 分析器"等工具时被触发）。
@@ -88,7 +95,7 @@ import java.io.File
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ToolTrayScreen(
-    pendingFilePath: String? = null,
+    pendingFilePaths: List<String> = emptyList(),
     onBack: () -> Unit,
     onMessage: (String) -> Unit
 ) {
@@ -102,6 +109,10 @@ fun ToolTrayScreen(
     var workingId by remember { mutableStateOf<String?>(null) }
     var stateVersion by remember { mutableStateOf(0) }
     var intentEditTarget by remember { mutableStateOf<ToolInfo?>(null) }
+
+    // 待传递文件信息列表（文件路由模式）
+    var pendingFileInfos by remember { mutableStateOf<List<PendingFileInfo>>(emptyList()) }
+    var showPendingFile by remember { mutableStateOf(true) }
 
     // 工具列表模式（两种入口都走同一个列表）
     LaunchedEffect(Unit) {
@@ -117,31 +128,72 @@ fun ToolTrayScreen(
         }
     }
 
+    // 计算待传递文件信息（文件路由模式）
+    LaunchedEffect(pendingFilePaths) {
+        if (pendingFilePaths.isEmpty()) {
+            pendingFileInfos = emptyList()
+            return@LaunchedEffect
+        }
+        pendingFileInfos = withContext(Dispatchers.IO) {
+            pendingFilePaths.map { path -> computePendingFileInfo(context, path) }
+        }
+    }
+
     fun toast(msg: String) = scope.launch { snackbar.showSnackbar(msg) }
 
     // 把待路由文件的 MIME/Uri 附加到工具启动 Intent（文件路由模式）。
+    // 支持：普通本地文件、压缩包内文件（xxx.zip#/inner）、Root/Shizuku 才能访问的文件、网络位置文件。
+    // 单文件 → ACTION_VIEW + setDataAndType；多文件 → ACTION_SEND_MULTIPLE + EXTRA_STREAM。
     fun attachPendingFileToIntent(intent: android.content.Intent) {
-        val path = pendingFilePath ?: return
-        val file = File(path)
-        if (!file.exists()) return
-        val mime = android.webkit.MimeTypeMap.getSingleton()
-            .getMimeTypeFromExtension(
-                file.extension.lowercase()
-            ) ?: "*/*"
-        try {
-            val uri: android.net.Uri = androidx.core.content.FileProvider.getUriForFile(
-                context,
-                "${context.packageName}.fileprovider",
-                file
-            )
-            intent.setDataAndType(uri, mime)
+        if (pendingFilePaths.isEmpty()) return
+        val resolved = pendingFilePaths.mapNotNull { resolvePendingFile(context, it) }
+        if (resolved.isEmpty()) return
+        val mime = if (resolved.size == 1) {
+            android.webkit.MimeTypeMap.getSingleton()
+                .getMimeTypeFromExtension(resolved.first().extension.lowercase())
+                ?: "application/octet-stream"
+        } else {
+            // 多文件：取第一个的 MIME 作为 type，实际以各文件 MIME 为准
+            android.webkit.MimeTypeMap.getSingleton()
+                .getMimeTypeFromExtension(resolved.first().extension.lowercase())
+                ?: "*/*"
+        }
+        val uris = ArrayList<android.net.Uri>()
+        for (file in resolved) {
+            try {
+                uris.add(
+                    androidx.core.content.FileProvider.getUriForFile(
+                        context, "${context.packageName}.fileprovider", file
+                    )
+                )
+            } catch (_: Throwable) {
+                @Suppress("DEPRECATION")
+                uris.add(android.net.Uri.fromFile(file))
+            }
+        }
+        // 显式授权给目标包
+        val targetPkg = intent.`package` ?: intent.component?.packageName
+        for (uri in uris) {
             intent.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
             intent.addFlags(android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-        } catch (_: Throwable) {
-            // 无 FileProvider 时退回到 Uri.fromFile（目标 APK 若未使用 fileprovider 也可能报错）
-            @Suppress("DEPRECATION")
-            intent.setDataAndType(android.net.Uri.fromFile(file), mime)
+            if (targetPkg != null) {
+                context.grantUriPermission(
+                    targetPkg, uri,
+                    android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                        android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                )
+            }
         }
+        if (uris.size == 1) {
+            intent.setDataAndType(uris.first(), mime)
+            intent.action = android.content.Intent.ACTION_VIEW
+        } else {
+            intent.action = android.content.Intent.ACTION_SEND_MULTIPLE
+            intent.type = mime
+            intent.putParcelableArrayListExtra(android.content.Intent.EXTRA_STREAM, uris)
+        }
+        intent.removeCategory(android.content.Intent.CATEGORY_LAUNCHER)
+        intent.addCategory(android.content.Intent.CATEGORY_DEFAULT)
     }
 
     Scaffold(
@@ -150,9 +202,12 @@ fun ToolTrayScreen(
             TopAppBar(
                 title = {
                     Text(
-                        if (pendingFilePath != null)
-                            stringResource(R.string.tool_tray_title) +
-                                " · " + pendingFilePath.substringAfterLast('/')
+                        if (pendingFilePaths.isNotEmpty())
+                            stringResource(R.string.tool_tray_title) + " · " +
+                                stringResource(
+                                    R.string.tool_tray_pending_files_count,
+                                    pendingFilePaths.size
+                                )
                         else stringResource(R.string.tool_tray_title)
                     )
                 },
@@ -240,6 +295,16 @@ fun ToolTrayScreen(
                             ),
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
+                            // 待传递文件信息面板（文件路由模式）
+                            if (pendingFileInfos.isNotEmpty()) {
+                                item {
+                                    PendingFilePanel(
+                                        infos = pendingFileInfos,
+                                        expanded = showPendingFile,
+                                        onToggle = { showPendingFile = !showPendingFile }
+                                    )
+                                }
+                            }
                             items(tools, key = { it.id }) { tool ->
                                 ToolCard(
                                     tool = tool,
@@ -287,7 +352,10 @@ fun ToolTrayScreen(
                                         scope.launch {
                                             try {
                                                 val msg = withContext(Dispatchers.IO) {
-                                                    launchTool(context, tool) { intent ->
+                                                    launchTool(
+                                                        context, tool,
+                                                        passFile = pendingFilePaths.isNotEmpty()
+                                                    ) { intent ->
                                                         attachPendingFileToIntent(intent)
                                                     }
                                                 }
@@ -962,6 +1030,85 @@ private fun parseExtras(text: String): List<Pair<String, ExtraValue>> {
 
 // ==================== 工具卡片（默认模式） ====================
 
+/**
+ * 待传递文件的展示信息。
+ *
+ * @property name 文件名（压缩包内为内部文件名）
+ * @property path 原始路径（可能是压缩包虚拟路径或需特权访问的路径）
+ * @property size 文件大小（字节），无法获取时为 null
+ * @property mimeType 推断的 MIME 类型
+ * @property resolvable 是否能被解析为可分享的本地文件（决定能否传递给其他应用）
+ */
+private data class PendingFileInfo(
+    val name: String,
+    val path: String,
+    val size: Long?,
+    val mimeType: String,
+    val resolvable: Boolean
+)
+
+/**
+ * 把待传递文件解析为 FileProvider 可分享的本地 File。
+ *
+ * 策略：
+ *  - 普通本地文件且 File 可直接访问：直接返回原文件；
+ *  - 压缩包内文件（含 '#'）或 Root/Shizuku 才能访问的文件：通过 [EngineSelector]
+ *    读取内容并复制到缓存目录后返回缓存文件；
+ *  - 解析失败返回 null。
+ *
+ * 注意：此函数包含 IO 操作，必须在 IO 线程调用。
+ */
+private fun resolvePendingFile(context: Context, path: String): File? {
+    // 1. 普通本地文件且可直接访问 → 直接返回
+    val direct = File(path)
+    if (!ArchiveEngine.isArchivePath(path) && direct.exists() && direct.isFile) {
+        return direct
+    }
+    // 2. 压缩包内文件 / 需特权访问的文件 → 复制到缓存目录
+    val name = if (ArchiveEngine.isArchivePath(path)) {
+        ArchiveEngine.innerOf(path).substringAfterLast('/')
+    } else {
+        path.substringAfterLast('/')
+    }
+    if (name.isBlank()) return null
+    val cacheDir = File(context.cacheDir, "tool_tray_share").apply { mkdirs() }
+    val cached = File(cacheDir, name)
+    return try {
+        EngineSelector.select(path).openInputStream(path).use { input ->
+            cached.outputStream().use { input.copyTo(it) }
+        }
+        cached
+    } catch (_: Throwable) {
+        null
+    }
+}
+
+/** 计算待传递文件的展示信息（含 IO，需在 IO 线程调用）。 */
+private fun computePendingFileInfo(context: Context, path: String): PendingFileInfo {
+    val name = if (ArchiveEngine.isArchivePath(path)) {
+        ArchiveEngine.innerOf(path).substringAfterLast('/')
+    } else {
+        path.substringAfterLast('/')
+    }
+    val ext = name.substringAfterLast('.', "").lowercase()
+    val mime = android.webkit.MimeTypeMap.getSingleton()
+        .getMimeTypeFromExtension(ext) ?: "application/octet-stream"
+    val direct = File(path)
+    val size = if (!ArchiveEngine.isArchivePath(path) && direct.exists() && direct.isFile) {
+        direct.length()
+    } else {
+        null
+    }
+    val resolvable = resolvePendingFile(context, path) != null
+    return PendingFileInfo(
+        name = name.ifEmpty { path },
+        path = path,
+        size = size,
+        mimeType = mime,
+        resolvable = resolvable
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun ToolCard(
@@ -1114,6 +1261,104 @@ private fun StatusChip(text: String, ok: Boolean) {
             else MaterialTheme.colorScheme.surfaceVariant
         )
     )
+}
+
+/**
+ * 待传递文件信息面板（可展开/收起）。
+ *
+ * 展示即将通过 Intent 传递给其他应用的文件信息：
+ *  文件名、原始路径、大小、MIME 类型、是否可解析传递。
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PendingFilePanel(
+    infos: List<PendingFileInfo>,
+    expanded: Boolean,
+    onToggle: () -> Unit
+) {
+    val count = infos.size
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp)
+    ) {
+        Column(modifier = Modifier.padding(14.dp)) {
+            // 标题行（可点击展开/收起）
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onToggle),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Rounded.Description,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(28.dp)
+                )
+                Spacer(Modifier.width(10.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        stringResource(R.string.tool_tray_pending_file_title),
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        if (count == 1) infos.first().name
+                        else stringResource(R.string.tool_tray_pending_files_count, count),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                IconButton(onClick = onToggle) {
+                    Icon(
+                        if (expanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
+                        contentDescription = stringResource(R.string.tool_tray_pending_file_toggle)
+                    )
+                }
+            }
+
+            // 展开内容：列出所有待传递文件
+            if (expanded) {
+                Spacer(Modifier.height(8.dp))
+                infos.forEachIndexed { index, info ->
+                    if (index > 0) HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp))
+                    InfoRow(stringResource(R.string.tool_tray_pending_file_name), info.name)
+                    InfoRow(
+                        stringResource(R.string.tool_tray_pending_file_path),
+                        info.path,
+                        maxLines = 3
+                    )
+                    InfoRow(
+                        stringResource(R.string.tool_tray_pending_file_size),
+                        info.size?.let { formatFileSize(it) }
+                            ?: stringResource(R.string.tool_tray_pending_file_size_unknown)
+                    )
+                    InfoRow(stringResource(R.string.tool_tray_pending_file_mime), info.mimeType)
+                    Spacer(Modifier.height(4.dp))
+                    StatusChip(
+                        text = if (info.resolvable)
+                            stringResource(R.string.tool_tray_pending_file_resolvable)
+                        else
+                            stringResource(R.string.tool_tray_pending_file_unresolvable),
+                        ok = info.resolvable
+                    )
+                }
+            }
+        }
+    }
+}
+
+/** 格式化文件大小为人类可读字符串。 */
+private fun formatFileSize(bytes: Long): String {
+    if (bytes < 1024) return "$bytes B"
+    val kb = bytes / 1024.0
+    if (kb < 1024) return "%.1f KB".format(kb)
+    val mb = kb / 1024.0
+    if (mb < 1024) return "%.1f MB".format(mb)
+    val gb = mb / 1024.0
+    return "%.2f GB".format(gb)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -1365,6 +1610,7 @@ private fun applyToolIntentConfig(intent: Intent, tool: ToolInfo) {
 private fun launchTool(
     context: Context,
     tool: ToolInfo,
+    passFile: Boolean = false,
     intentCustomizer: (Intent) -> Unit = {}
 ): String {
     val pkg = tool.packageName
@@ -1372,6 +1618,14 @@ private fun launchTool(
         return context.getString(R.string.tool_tray_launch_no_pkg)
     }
     val intent: Intent? = when {
+        // 文件路由模式：用 ACTION_VIEW + setPackage，让系统在目标包内解析能处理该 MIME 的 Activity
+        passFile -> {
+            Intent(Intent.ACTION_VIEW).apply {
+                setPackage(pkg)
+                addCategory(Intent.CATEGORY_DEFAULT)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        }
         tool.launchActivity.isNotBlank() -> {
             Intent().apply {
                 setClassName(pkg, tool.launchActivity)
