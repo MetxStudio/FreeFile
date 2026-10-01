@@ -71,6 +71,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.freefile.R
+import com.freefile.data.externaltools.ExternalToolsStore
 import com.freefile.vfs.ArchiveEngine
 import com.freefile.vfs.EngineSelector
 import kotlinx.coroutines.Dispatchers
@@ -97,6 +98,8 @@ import java.io.File
 fun ToolTrayScreen(
     pendingFilePaths: List<String> = emptyList(),
     onBack: () -> Unit,
+    onOpenDownloads: () -> Unit = {},
+    onRequestStorage: () -> Unit = {},
     onMessage: (String) -> Unit
 ) {
     val context = LocalContext.current
@@ -220,6 +223,12 @@ fun ToolTrayScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = onOpenDownloads) {
+                        Icon(Icons.Rounded.GetApp, contentDescription = "下载工具")
+                    }
+                    IconButton(onClick = onRequestStorage) {
+                        Icon(Icons.Rounded.Settings, contentDescription = "授权外部工具目录")
+                    }
                     IconButton(onClick = {
                         scope.launch {
                             loading = true
@@ -1490,23 +1499,44 @@ private fun parseIndex(context: Context): List<ToolInfo> {
     val list = ArrayList<ToolInfo>(arr.length())
     for (i in 0 until arr.length()) {
         val o = arr.optJSONObject(i) ?: continue
-        list += ToolInfo(
-            id = o.optString("id").ifBlank { o.optString("apkFile") },
-            name = o.optString("name").ifBlank { o.optString("apkFile") },
-            apkFile = o.optString("apkFile"),
-            packageName = o.optString("packageName"),
-            launchActivity = o.optString("launchActivity"),
-            version = o.optString("version"),
-            description = o.optString("description"),
-            intentAction = o.optString("intentAction"),
-            intentCategory = o.optString("intentCategory"),
-            intentData = o.optString("intentData"),
-            intentExtra = o.optString("intentExtra"),
-            intentFlags = o.optString("intentFlags")
-        )
+        list += toolFromJson(o)
     }
-    return list
+    val external = try {
+        ExternalToolsStore(context).read()
+    } catch (e: Exception) {
+        // 未授权时仍展示内置工具；用户可通过顶栏授权按钮选择 /FreeFile/Data。
+        null
+    }
+    if (external.isNullOrBlank()) return list
+    val externalRoot = JSONObject(external)
+    val externalArray = externalRoot.optJSONArray("tools") ?: return list
+    val externalTools = ArrayList<ToolInfo>(externalArray.length())
+    for (i in 0 until externalArray.length()) {
+        externalArray.optJSONObject(i)?.let { externalTools += toolFromJson(it) }
+    }
+    val merged = LinkedHashMap<String, ToolInfo>()
+    list.forEach { merged[toolKey(it)] = it }
+    externalTools.forEach { merged[toolKey(it)] = it }
+    return merged.values.toList()
 }
+
+private fun toolFromJson(o: JSONObject): ToolInfo = ToolInfo(
+    id = o.optString("id").ifBlank { o.optString("packageName") },
+    name = o.optString("name").ifBlank { o.optString("packageName") },
+    apkFile = o.optString("apkFile"),
+    packageName = o.optString("packageName"),
+    launchActivity = o.optString("launchActivity"),
+    version = o.optString("version"),
+    description = o.optString("description").ifBlank { o.optString("summary") },
+    intentAction = o.optString("intentAction"),
+    intentCategory = o.optString("intentCategory"),
+    intentData = o.optString("intentData"),
+    intentExtra = o.optString("intentExtra"),
+    intentFlags = o.optString("intentFlags")
+)
+
+private fun toolKey(tool: ToolInfo): String =
+    if (tool.packageName.isNotBlank()) "pkg:${tool.packageName}" else "id:${tool.id}"
 
 /** 解压后 APK 落地的缓存文件（不解压时不创建）。 */
 private fun extractedFile(context: Context, tool: ToolInfo): File =

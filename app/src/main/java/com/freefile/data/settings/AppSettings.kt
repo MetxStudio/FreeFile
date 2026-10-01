@@ -30,6 +30,7 @@ data class SettingsData(
     val viewMode: String = "LIST",
     // 索引缓存（需求 5）
     val indexEnabled: Boolean = false,
+    val userAgreementAccepted: Boolean = false,
     // 搜索默认选项（需求 5）
     val searchDepth: Int = 0,            // 0 = 仅当前目录；-1 = 无限递归
     val searchRegex: Boolean = false,
@@ -48,6 +49,7 @@ object AppSettings {
         "computeSizes" to booleanPreferencesKey("compute_sizes"),
         "viewMode" to stringPreferencesKey("view_mode"),
         "indexEnabled" to booleanPreferencesKey("index_enabled"),
+        "userAgreementAccepted" to booleanPreferencesKey("user_agreement_accepted"),
         "searchDepth" to intPreferencesKey("search_depth"),
         "searchRegex" to booleanPreferencesKey("search_regex"),
         "searchWildcard" to booleanPreferencesKey("search_wildcard"),
@@ -77,6 +79,7 @@ object AppSettings {
         computeSizes = p[KEYS["computeSizes"] as Preferences.Key<Boolean>] ?: false,
         viewMode = p[KEYS["viewMode"] as Preferences.Key<String>] ?: "LIST",
         indexEnabled = p[KEYS["indexEnabled"] as Preferences.Key<Boolean>] ?: false,
+        userAgreementAccepted = p[KEYS["userAgreementAccepted"] as Preferences.Key<Boolean>] ?: false,
         searchDepth = p[KEYS["searchDepth"] as Preferences.Key<Int>] ?: 0,
         searchRegex = p[KEYS["searchRegex"] as Preferences.Key<Boolean>] ?: false,
         searchWildcard = p[KEYS["searchWildcard"] as Preferences.Key<Boolean>] ?: false,
@@ -87,6 +90,7 @@ object AppSettings {
     suspend fun setComputeSizes(v: Boolean) = put("computeSizes", v)
     suspend fun setViewMode(v: String) = put("viewMode", v)
     suspend fun setIndexEnabled(v: Boolean) = put("indexEnabled", v)
+    suspend fun setUserAgreementAccepted(v: Boolean) = put("userAgreementAccepted", v)
     suspend fun setSearchDepth(v: Int) = put("searchDepth", v)
     suspend fun setSearchRegex(v: Boolean) = put("searchRegex", v)
     suspend fun setSearchWildcard(v: Boolean) = put("searchWildcard", v)

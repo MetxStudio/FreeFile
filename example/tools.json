@@ -1,0 +1,19 @@
+﻿{
+    "version":  1,
+    "description":  "FreeFile Download",
+    "tools":  [
+                  {
+                      "id":  "apk_tool",
+                      "name":  "Apktool M",
+                      "apkFile":  "apktoolm",
+                      "packageName":  "ru.maximoff.apktool",
+                      "launchActivity":  "",
+                      "version":  "2.4.0-260728",
+                      "description":  "Apk Editor \u0026 Analyzer For FreeFile",
+                      "downloadUrl":  "https://thisisexample.com/apktoolm",
+                      "iconUrl":  "",
+                      "size":  ""
+                  }
+              ]
+}
+

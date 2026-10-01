@@ -60,6 +60,37 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+@Composable
+fun UserAgreementDialog(
+    onAccept: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.user_agreement_title)) },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 420.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Text(stringResource(R.string.user_agreement_content))
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onAccept) {
+                Text(stringResource(R.string.user_agreement_accept))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.user_agreement_later))
+            }
+        }
+    )
+}
+
 // ==================== 通用文本输入 ====================
 
 /** 通用文本输入对话框：新建/重命名共用。 */
@@ -737,12 +768,16 @@ fun SearchSettingsDialog(
                     Spacer(Modifier.height(8.dp))
                     HorizontalDivider()
                     Spacer(Modifier.height(8.dp))
-                    // 索引状态（高级模式下提示）
+                    // 本次搜索的索引状态提示
                     Text(
                         when {
-                            indexEnabled && indexState is com.freefile.search.IndexState.Ready ->
+                            !useIndex ->
+                                stringResource(R.string.search_live_hint)
+                            contentPattern.isNotBlank() ->
+                                stringResource(R.string.search_index_content_fallback)
+                            indexState is com.freefile.search.IndexState.Ready ->
                                 stringResource(R.string.search_index_hint)
-                            indexEnabled && indexState is com.freefile.search.IndexState.Building ->
+                            indexState is com.freefile.search.IndexState.Building ->
                                 stringResource(R.string.search_index_building)
                             else -> stringResource(R.string.search_live_hint)
                         },

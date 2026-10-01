@@ -117,6 +117,9 @@ gradlew.bat :app:assembleDebug
 
 环境要求：JDK 17、Gradle 8.0（Wrapper 已自带）。终端模拟器与虚拟容器均以预构建 AAR / Maven 依赖方式引入，**无需本地 NDK / CMake 环境**。
 
+若您想在您自行构建的应用中使用"第三方应用下载"功能，请在DownloadToolActivity中将常量
+TOOL_CATALOG_URL = "https://thisisexample.com/json/tools.json" 换为您自己的工具索引json，格式见/example/tools.json
+其中https://thisisexample.com/example为实例链接，example为example.apk去掉.apk后缀后的文件
 ## 项目结构
 
 ```

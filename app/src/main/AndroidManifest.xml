@@ -82,6 +82,14 @@
             android:taskAffinity="${applicationId}.terminal"
             android:theme="@style/Theme.FreeFile" />
 
+        <!-- 在线工具下载与系统 APK 安装 -->
+        <activity
+            android:name=".ui.DownloadToolActivity"
+            android:exported="false"
+            android:label="下载工具"
+            android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
+            android:theme="@style/Theme.FreeFile" />
+
         <!-- 文本编辑器：独立任务栈 -->
         <activity
             android:name=".ui.TextEditorActivity"

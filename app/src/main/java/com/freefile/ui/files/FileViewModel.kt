@@ -419,8 +419,8 @@ class FileViewModel(
             _ui.update { it.copy(searchQuery = query, searchMode = true, loading = true) }
             searchJob = viewModelScope.launch {
                 try {
-                    // 是否走索引：用户/全局开关开启 + 索引就绪 + 无内容搜索（内容搜索无法走索引）
-                    val wantIndex = (opts.useIndex || _ui.value.indexEnabled) &&
+                    // 是否走索引：由本次搜索对话框的复选框决定；索引未就绪或内容搜索时回退实时搜索
+                    val wantIndex = opts.useIndex &&
                         SearchEngine.indexState.value is IndexState.Ready &&
                         !(opts.advanced && opts.contentPattern.isNotBlank())
                     val results: List<VfsEntry> = if (wantIndex) {

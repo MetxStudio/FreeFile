@@ -146,6 +146,7 @@ import com.freefile.ui.dialogs.PropertiesDialog
 import com.freefile.ui.dialogs.SearchSettingsDialog
 import com.freefile.ui.dialogs.TaskProgressCard
 import com.freefile.ui.dialogs.TextInputDialog
+import com.freefile.ui.dialogs.UserAgreementDialog
 import com.freefile.ui.files.FileClipboard
 import com.freefile.ui.files.FilterMode
 import com.freefile.ui.files.FileTypes
@@ -209,6 +210,9 @@ fun MainScreen() {
     var showFilter by remember { mutableStateOf(false) }
     // 搜索设置 Dialog
     var showSearchDialog by remember { mutableStateOf(false) }
+    var showUserAgreement by remember {
+        mutableStateOf(!AppSettings.state.value.userAgreementAccepted)
+    }
     // 跳转对话框
     var showJump by remember { mutableStateOf(false) }
     // 多选操作面板（需求 4：操作按钮触发，含分享/系统打开/内置模块/文件操作）
@@ -728,6 +732,16 @@ fun MainScreen() {
             }
 
             // 跳转对话框（需求 2：目录跳转）
+            if (showUserAgreement) {
+                UserAgreementDialog(
+                    onAccept = {
+                        showUserAgreement = false
+                        scope.launch { AppSettings.setUserAgreementAccepted(true) }
+                    },
+                    onDismiss = { showUserAgreement = false }
+                )
+            }
+
             if (showJump) {
                 JumpToPathDialog(
                     initialPath = activeUi.path,

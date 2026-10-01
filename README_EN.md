@@ -95,6 +95,13 @@ gradlew.bat :app:assembleDebug
 
 The debug APK is generated at `app/build/outputs/apk/debug/app-debug.apk`.
 
+If you want to use the "third-party app download" feature in an application you build yourself, replace the constant
+
+java
+TOOL_CATALOG_URL = "https://thisisexample.com/json/tools.json";
+in DownloadToolActivity with your own tools index JSON. For the format, see /example/tools.json.
+
+Here, https://thisisexample.com/example is an example link, and example is the file example.apk with the .apk suffix removed.
 ## Permissions and safety
 
 The application may request all-files access, package-query and APK-install permissions, network/Wi-Fi permissions, Shizuku access, and foreground-service permission. These permissions are used for file management, remote file systems, local-network transfer, APK tools, and long-running transfer tasks.
