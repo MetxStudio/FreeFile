@@ -91,6 +91,74 @@
 
 * **编译**：`./gradlew :app:compileDebugKotlin` BUILD SUCCESSFUL。
 
+### 任务 10：ZIP 压缩配置与结果定位（已完成）
+
+* **密码**：支持可选密码，使用 ZIP4J AES-256 加密；留空则创建普通 ZIP。
+
+* **压缩级别**：支持 STORE、FAST、NORMAL、MAXIMUM 四档选择。
+
+* **覆盖确认**：目标路径已存在时，先弹出确认对话框，确认后才覆盖原文件。
+
+* **自动定位**：压缩完成后刷新当前窗格，并自动跳转/选中生成的 ZIP 文件。
+
+* **真机测试提示**：大文件、超大目录、磁盘空间不足、后台切换和密码 ZIP 解压仍需在 Android 真机上回归验证。
+
+### 任务 11：压缩/解压多文件与错误修复（已完成）
+
+* **入口位置**：文件选择后的「操作」对话框；「属性」下方提供解压和压缩操作。
+
+* **多文件压缩**：选中多个本地文件/目录后统一创建一个 ZIP。
+
+* **批量解压**：选中多个压缩包后输入一次目标目录，分别创建后台解压任务。
+
+* **线程与进度**：压缩和解压均通过 `TransferManager` 的 IO 线程执行，每个任务独立显示实时进度并支持取消。
+
+* **错误修复**：清理 `MainScreen.kt` 中重复、错位的压缩分支，并通过 Kotlin 编译验证。
+
+* **编译**：`./gradlew :app:compileDebugKotlin` BUILD SUCCESSFUL。
+
+### 任务 12：压缩配置增强、格式/分卷/密码完善与回调修复（已完成）
+
+* **压缩完成回调修复**：后台任务完成回调改用 `FreeFileApp.mainScope`（应用级主线程 SupervisorJob），不再依赖 Compose 组合 `scope`，修复压缩完成后偶发 `StandaloneCoroutine was cancelled` 导致的刷新/提示失效。`toast` 与复制/移动/压缩/解压完成回调均已切换。
+
+* **压缩配置 UI 重构**：`CompressDialog` 将压缩级别由 `FilterChip` 行改为 `ExposedDropdownMenu` 下拉框；新增压缩格式下拉框（ZIP / 7z / TAR / TAR.GZ / TAR.BZ2 / TAR.XZ），切换格式自动同步目标扩展名；新增分卷大小（MB）输入框，0 表示不分卷。
+
+* **密码修复与验证**：密码字段仅在 ZIP 格式下启用；压缩完成后重新以密码打开归档并校验 `isEncrypted` 与可读首个条目，确保密码真正生效而非静默失败。
+
+* **ZIP 分卷**：移除 `splitMb == 0` 限制，使用 zip4j `isSplitArchive` + `splitLength` 实现 ZIP 分卷；非 ZIP 格式下分卷输入禁用并校验拒绝。
+
+* **解压密码支持**：`ArchiveExtractor.extract` 新增 `password` 参数，zip4j / commons-compress 7z / junrar 均透传密码；加密 ZIP 未提供密码时给出明确提示。`TransferManager.enqueueExtract` 与 `ConfirmExtractDialog` 同步增加密码输入。
+
+* **多语言**：新增 `dlg_compress_format_label` / `dlg_compress_password_zip_only` / `dlg_compress_split_label` / `dlg_compress_split_hint` / `dlg_extract_password_label`，中英文同步更新；`dlg_compress_target_label` 改为通用「压缩包文件路径」。
+
+* **限制**：密码与分卷仅 ZIP 支持；7z 压缩暂不支持加密（commons-compress SevenZOutputFile 未暴露加密写入）；tar 系列无加密能力。
+
+### 任务 13：媒体查看器 MVP（第一阶段，已完成）
+
+依据 `plan/1/plan-1.md` 第 1 阶段落地图片 / 视频 / 音频统一查看器。
+
+* **依赖**：新增 `coil-compose:2.5.0`（图片，含 GIF/WebP）、`coil-video:2.5.0`（视频首帧）、`media3-exoplayer:1.2.1` + `media3-ui:1.2.1`（音视频播放）。
+
+* **入口与模型**：`ui/media/MediaItem.kt` 按扩展名识别 IMAGE/VIDEO/AUDIO；`MediaViewerActivity` 接收文件路径列表 + 初始索引，独立任务栈。
+
+* **主屏幕**：`MediaViewerScreen` 使用 `HorizontalPager` 混合滑动切换；顶栏显示标题与「当前/总数」；底栏提供分享 / 删除 / 详情。
+
+* **图片页**：`SubcomposeAsyncImage` 加载，支持双指缩放（1x–5x）、双击放大/还原、拖拽平移，带加载圈与失败占位。
+
+* **视频页**：`ExoPlayer` + `PlayerView`，使用系统控件的播放/暂停/进度/全屏。
+
+* **音频页**：`ExoPlayer` 自定义控件，封面占位、标题、进度条、播放/暂停、上下首（联动 Pager 切换）。
+
+* **操作与回传**：分享走 FileProvider；删除用 `File.delete`；详情弹 AlertDialog。删除路径经 `MediaViewerActivity → OpenWithActivity → MainScreen` 三级回传，触发左右窗格刷新。
+
+* **OpenWithActivity 集成**：新增「媒体查看器」条目，仅媒体文件启用；`isMedia` 由 `MediaItem.isMedia` 判断。
+
+* **多语言**：新增 `media_*` 与 `open_with_media_viewer` 共 13 条中英文资源。
+
+* **编译**：`./gradlew :app:compileDebugKotlin` BUILD SUCCESSFUL。
+
+* **限制（留待 P1/P2）**：音频未做后台 MediaSession / 通知栏；视频未做 PiP / 倍速 / 字幕；图片未做 EXIF / 设为壁纸；大图未用 SubsamplingScaleImageView 分块；暂不支持压缩包内/远程媒体直接预览（需经 FileOpener 缓存）。
+
 ### 任务 6：终端接收 Intent（已完成）
 
 * **入口**：`MainScreen` ActionSheet 中「在终端中打开」→ 设置 `terminalPendingPaths` → 启动 `TerminalScreen(initialPaths = ...)`。
@@ -142,6 +210,20 @@
 * **OpenSheetItem**：已加 `enabled` 参数，禁用时图标/文字变灰、不可点击。
 
 * **动态启用/禁用**：rename/properties 仅单选可用；extract 仅单选且为压缩包时可用。
+
+### 任务 9：ZIP 压缩打包（已完成）
+
+* **入口**：多选操作面板中的「压缩」，支持单个或多个本地文件/目录。
+
+* **目标路径**：弹出对话框输入 ZIP 完整路径，默认使用当前目录和选中项名称。
+
+* **后台执行**：通过 `TransferManager` 调度，显示文件/字节进度，支持取消和失败提示。
+
+* **完成处理**：任务完成后刷新当前窗格并清除选择。
+
+* **核心实现**：复用 `CompressionEngine` 的 ZIP4J 实现，保留压缩级别和密码能力供后续配置 UI 使用。
+
+* **编译**：`./gradlew :app:compileDebugKotlin` BUILD SUCCESSFUL。
 
 ## 编译状态
 

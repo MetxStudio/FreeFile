@@ -90,6 +90,7 @@
     <string name="dlg_conflict_title">File conflict</string>
     <string name="dlg_extract_title">Extract to…</string>
     <string name="dlg_extract_target_label">Target folder</string>
+    <string name="dlg_extract_password_label">Password (optional)</string>
     <string name="dlg_extract_confirm">Extract</string>
     <string name="dlg_hash_title">Checksums</string>
     <string name="dlg_copy_hash">Copy</string>
@@ -214,6 +215,7 @@
     <string name="msg_task_done">Task finished</string>
     <string name="msg_task_failed">Task failed</string>
     <string name="msg_task_cancelled">Task cancelled</string>
+    <string name="msg_compress_done">Compression completed</string>
     <string name="msg_index_started">Building index…</string>
 
     <!-- ==================== Supplemental ==================== -->
@@ -277,8 +279,21 @@
     <string name="br_suffix">Suffix (before extension)</string>
     <string name="br_preview">Preview (%1$d changes)</string>
     <string name="dlg_extract_name">Extract "%1$s"</string>
+    <string name="dlg_extract_multiple">Extract %1$d archives</string>
     <string name="dlg_extract_to">Extract to the following directory:</string>
     <string name="dlg_extract_start">Start extraction</string>
+    <string name="dlg_compress_name">Compress %1$d items</string>
+    <string name="dlg_compress_target_label">Archive file path</string>
+    <string name="dlg_compress_start">Start compression</string>
+    <string name="dlg_compress_password_label">Password (optional)</string>
+    <string name="dlg_compress_password_zip_only">Password is only supported for ZIP</string>
+    <string name="dlg_compress_level_label">Compression level</string>
+    <string name="dlg_compress_format_label">Archive format</string>
+    <string name="dlg_compress_split_label">Split size (MB)</string>
+    <string name="dlg_compress_split_hint">0 means no split; only supported for ZIP</string>
+    <string name="dlg_compress_overwrite_title">Overwrite existing archive?</string>
+    <string name="dlg_compress_overwrite_message">The file already exists: %1$s</string>
+    <string name="dlg_compress_overwrite_confirm">Overwrite and compress</string>
     <string name="conflict_detected">%1$d name conflicts detected</string>
     <string name="conflict_desc">%1$s: the target directory contains entries with the same name. Choose how to proceed:</string>
     <string name="action_overwrite">Overwrite</string>
@@ -297,6 +312,7 @@
     <string name="task_move">Move %1$d items → %2$s</string>
     <string name="task_delete">Delete %1$d items</string>
     <string name="task_extract">Extract %1$s → %2$s</string>
+    <string name="task_compress">Compress %1$d items → %2$s</string>
 
     <!-- Sprint 5: drawer tools & network locations -->
     <string name="drawer_tools">Tools</string>
@@ -472,9 +488,26 @@
     <string name="builtin_chooser_tools">Tool tray (open file)</string>
     <string name="builtin_chooser_terminal">Terminal</string>
     <string name="builtin_chooser_extract">Extract this archive</string>
+    <string name="open_with_media_viewer">Media Viewer</string>
+    <string name="media_viewer_title">Media Viewer</string>
+    <string name="media_share">Share</string>
+    <string name="media_delete">Delete</string>
+    <string name="media_details">Details</string>
+    <string name="media_open_failed">File does not exist or cannot be opened</string>
+    <string name="media_delete_done">Deleted</string>
+    <string name="media_delete_failed">Delete failed</string>
+    <string name="media_unsupported">Unsupported media format: %1$s</string>
+    <string name="media_image_load_failed">Failed to load image</string>
+    <string name="media_detail_title">File details</string>
+    <string name="media_detail_type">Type: </string>
+    <string name="media_detail_mime">MIME: </string>
+    <string name="media_detail_size">Size: </string>
+    <string name="media_detail_path">Path: </string>
     <string name="builtin_chooser_virtualbox">Run in VirtualBox (no install)</string>
     <string name="open_with_extract">Extract this archive</string>
     <string name="action_compress">Compress</string>
+    <string name="action_compress_archive">Compress to archive</string>
+    <string name="action_extract_archives">Extract</string>
     <string name="action_compress_todo">Compression is under development; stay tuned</string>
     <string name="open_with_edit">Open in text editor</string>
     <string name="tool_tray_open_with_apk">Open with APK tool</string>

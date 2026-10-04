@@ -2,6 +2,7 @@ package com.freefile.operations
 
 import com.freefile.FreeFileApp
 import com.freefile.R
+import com.freefile.tools.unzip.CompressionEngine
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.File
 import java.util.concurrent.atomic.AtomicLong
 
 /**
@@ -98,6 +100,7 @@ object TransferManager {
     fun enqueueExtract(
         archivePath: String,
         targetDir: String,
+        password: String? = null,
         onCompleted: (ok: Boolean, message: String) -> Unit = { _, _ -> }
     ): Long = enqueue(
         OpKind.EXTRACT,
@@ -106,9 +109,36 @@ object TransferManager {
         )
     ) { progress, cancelled ->
         ArchiveExtractor.extract(
-            archivePath, targetDir,
+            archivePath, targetDir, password,
             onProgress = { f, t, b, tb, cur ->
                 progress(TransferProgress(0, OpKind.EXTRACT, TaskState.RUNNING, cur, f, t, b, tb))
+            },
+            isCancelled = cancelled
+        )
+        0
+    }.also { taskId -> attachCallback(taskId, onCompleted) }
+
+    /** 入队 ZIP 压缩任务。 */
+    fun enqueueCompress(
+        entries: List<com.freefile.vfs.VfsEntry>,
+        destination: String,
+        options: CompressionEngine.Options = CompressionEngine.Options(format = CompressionEngine.Format.ZIP),
+        onCompleted: (ok: Boolean, message: String) -> Unit = { _, _ -> }
+    ): Long = enqueue(
+        OpKind.COMPRESS,
+        FreeFileApp.instance.getString(R.string.task_compress, entries.size, destination)
+    ) { progress, cancelled ->
+        CompressionEngine.compress(
+            sources = entries.map { File(it.path) },
+            destination = File(destination),
+            options = options,
+            onProgress = { p ->
+                progress(
+                    TransferProgress(
+                        0, OpKind.COMPRESS, TaskState.RUNNING, p.currentFile,
+                        p.filesDone, p.totalFiles, p.bytesDone, p.totalBytes
+                    )
+                )
             },
             isCancelled = cancelled
         )

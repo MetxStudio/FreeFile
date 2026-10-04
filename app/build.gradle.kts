@@ -121,4 +121,11 @@ dependencies {
     // 注：1.0.0-rc14 需 Kotlin 2.3.21 + Compose 1.10 + AGP 8.6，与本项目不兼容；
     // 1.0.0-rc05 适配 Kotlin 1.9.24 + Compose 1.6.10，API 一致。
     implementation("com.mohamedrejeb.richeditor:richeditor-compose:1.0.0-rc05")
+
+    // ==================== 媒体查看器（MVP） ====================
+    implementation("io.coil-kt:coil-compose:2.5.0")                       // 图片加载（含 GIF/WebP）
+    implementation("io.coil-kt:coil-video:2.5.0")                         // 视频首帧缩略图
+    implementation("androidx.media3:media3-exoplayer:1.2.1")             // 音视频播放核心
+    implementation("androidx.media3:media3-ui:1.2.1")                    // PlayerView 控件
+    implementation("androidx.media3:media3-common:1.2.1")
 }

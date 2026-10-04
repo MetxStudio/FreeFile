@@ -21,7 +21,7 @@ data class Conflict(
 )
 
 /** 操作种类。 */
-enum class OpKind { COPY, MOVE, DELETE, EXTRACT }
+enum class OpKind { COPY, MOVE, DELETE, EXTRACT, COMPRESS }
 
 /** 任务状态。 */
 enum class TaskState { RUNNING, DONE, CANCELLED, FAILED }

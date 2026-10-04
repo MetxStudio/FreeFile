@@ -8,6 +8,7 @@ import com.freefile.search.SearchEngine
 import com.freefile.tools.virtualbox.VirtualBoxApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 /**
@@ -24,6 +25,10 @@ class FreeFileApp : VirtualBoxApp() {
         private set
     lateinit var permissionManager: PermissionManager
         private set
+
+    /** 应用级主线程作用域（生命周期与进程一致），供后台任务完成回调安全地更新 UI，
+     *  避免依赖 Compose 组合 scope 在异步回调时已被取消而抛出 StandaloneCoroutine cancelled。 */
+    val mainScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     override fun onCreate() {
         super.onCreate()

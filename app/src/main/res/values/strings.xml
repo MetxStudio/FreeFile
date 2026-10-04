@@ -90,6 +90,7 @@
     <string name="dlg_conflict_title">文件冲突</string>
     <string name="dlg_extract_title">解压到…</string>
     <string name="dlg_extract_target_label">目标目录</string>
+    <string name="dlg_extract_password_label">密码（可选）</string>
     <string name="dlg_extract_confirm">解压</string>
     <string name="dlg_hash_title">校验值</string>
     <string name="dlg_copy_hash">复制</string>
@@ -216,6 +217,7 @@
     <string name="msg_task_done">任务完成</string>
     <string name="msg_task_failed">任务失败</string>
     <string name="msg_task_cancelled">任务已取消</string>
+    <string name="msg_compress_done">压缩完成</string>
     <string name="msg_index_started">开始构建索引…</string>
 
     <!-- ==================== 补充（资源化清理） ==================== -->
@@ -279,8 +281,21 @@
     <string name="br_suffix">后缀（扩展名前）</string>
     <string name="br_preview">预览（%1$d 项变更）</string>
     <string name="dlg_extract_name">解压「%1$s」</string>
+    <string name="dlg_extract_multiple">解压 %1$d 个压缩包</string>
     <string name="dlg_extract_to">解压到以下目录：</string>
     <string name="dlg_extract_start">开始解压</string>
+    <string name="dlg_compress_name">压缩 %1$d 项</string>
+    <string name="dlg_compress_target_label">压缩包文件路径</string>
+    <string name="dlg_compress_start">开始压缩</string>
+    <string name="dlg_compress_password_label">密码（可选）</string>
+    <string name="dlg_compress_password_zip_only">密码仅 ZIP 格式支持</string>
+    <string name="dlg_compress_level_label">压缩级别</string>
+    <string name="dlg_compress_format_label">压缩格式</string>
+    <string name="dlg_compress_split_label">分卷大小（MB）</string>
+    <string name="dlg_compress_split_hint">0 表示不分卷，仅 ZIP 格式支持</string>
+    <string name="dlg_compress_overwrite_title">覆盖已有压缩包？</string>
+    <string name="dlg_compress_overwrite_message">文件已存在：%1$s</string>
+    <string name="dlg_compress_overwrite_confirm">覆盖并压缩</string>
     <string name="conflict_detected">检测到 %1$d 个同名冲突</string>
     <string name="conflict_desc">%1$s：目标目录存在同名条目，请选择处理方式：</string>
     <string name="action_overwrite">覆盖</string>
@@ -299,6 +314,7 @@
     <string name="task_move">移动 %1$d 项 → %2$s</string>
     <string name="task_delete">删除 %1$d 项</string>
     <string name="task_extract">解压 %1$s → %2$s</string>
+    <string name="task_compress">压缩 %1$d 项 → %2$s</string>
 
     <!-- Sprint 5：抽屉工具与网络位置 -->
     <string name="drawer_tools">工具</string>
@@ -474,9 +490,26 @@
     <string name="builtin_chooser_tools">工具托盘（打开文件）</string>
     <string name="builtin_chooser_terminal">终端</string>
     <string name="builtin_chooser_extract">解压此压缩包</string>
+    <string name="open_with_media_viewer">媒体查看器</string>
+    <string name="media_viewer_title">媒体查看器</string>
+    <string name="media_share">分享</string>
+    <string name="media_delete">删除</string>
+    <string name="media_details">详情</string>
+    <string name="media_open_failed">文件不存在或无法打开</string>
+    <string name="media_delete_done">已删除</string>
+    <string name="media_delete_failed">删除失败</string>
+    <string name="media_unsupported">不支持的媒体格式：%1$s</string>
+    <string name="media_image_load_failed">图片加载失败</string>
+    <string name="media_detail_title">文件详情</string>
+    <string name="media_detail_type">类型：</string>
+    <string name="media_detail_mime">MIME：</string>
+    <string name="media_detail_size">大小：</string>
+    <string name="media_detail_path">路径：</string>
     <string name="builtin_chooser_virtualbox">VirtualBox 免安装运行</string>
     <string name="open_with_extract">解压此压缩包</string>
     <string name="action_compress">压缩</string>
+    <string name="action_compress_archive">压缩为压缩包</string>
+    <string name="action_extract_archives">解压</string>
     <string name="action_compress_todo">压缩功能正在开发中，敬请期待</string>
     <string name="open_with_edit">用文本编辑器打开</string>
     <string name="tool_tray_open_with_apk">用 APK 工具打开</string>

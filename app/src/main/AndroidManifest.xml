@@ -125,6 +125,15 @@
             android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
             android:theme="@style/Theme.FreeFile" />
 
+        <!-- 媒体查看器：图片 / 视频 / 音频统一查看播放，独立任务栈 -->
+        <activity
+            android:name=".ui.media.MediaViewerActivity"
+            android:exported="false"
+            android:label="@string/media_viewer_title"
+            android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
+            android:taskAffinity="${applicationId}.mediaviewer"
+            android:theme="@style/Theme.FreeFile" />
+
         <!-- 设置：独立任务栈 -->
         <activity
             android:name=".ui.SettingsActivity"

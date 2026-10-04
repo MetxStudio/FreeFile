@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Archive
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.PlayCircle
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.Terminal
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -79,8 +81,39 @@ class OpenWithActivity : AppCompatActivity() {
         val isApk = entry.extension.equals("apk", ignoreCase = true) && !entry.isDirectory
         val isText = FileOpener.isTextFile(entry) ||
             entry.extension in setOf("xml", "properties", "ini", "conf", "smali", "yml", "yaml")
+        val isMedia = com.freefile.ui.media.MediaItem.isMedia(entry.extension) && !entry.isDirectory
         val scope = lifecycleScope
         fun toast(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+
+        // 媒体查看器结果回传：将被删除的路径转发给主页刷新
+        val mediaLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { res ->
+            if (res.resultCode == RESULT_OK) {
+                val deleted = res.data?.getStringArrayListExtra(
+                    com.freefile.ui.media.MediaViewerActivity.EXTRA_DELETED_PATHS
+                )
+                if (!deleted.isNullOrEmpty()) {
+                    setResult(
+                        RESULT_OK,
+                        Intent().putStringArrayListExtra(EXTRA_DELETED_PATHS, deleted)
+                    )
+                }
+            }
+            finish()
+        }
+
+        fun launchMediaViewer() {
+            mediaLauncher.launch(
+                Intent(this, com.freefile.ui.media.MediaViewerActivity::class.java)
+                    .putStringArrayListExtra(
+                        com.freefile.ui.media.MediaViewerActivity.EXTRA_FILE_PATHS,
+                        ArrayList(filePaths)
+                    )
+                    .putExtra(
+                        com.freefile.ui.media.MediaViewerActivity.EXTRA_INITIAL_INDEX,
+                        0
+                    )
+            )
+        }
 
         setContent {
             FreeFileTheme {
@@ -88,6 +121,7 @@ class OpenWithActivity : AppCompatActivity() {
                     entry = entry,
                     isArchive = isArchive,
                     isApk = isApk,
+                    isMedia = isMedia,
                     onShare = {
                         scope.launch {
                             val entries = filePaths.map { p ->
@@ -208,7 +242,8 @@ class OpenWithActivity : AppCompatActivity() {
                                 .putExtra(VirtualBoxMainActivity.EXTRA_APK_PATH, entry.path)
                         )
                         finish()
-                    }
+                    },
+                    onMediaViewer = { launchMediaViewer() }
                 )
             }
         }
@@ -218,6 +253,7 @@ class OpenWithActivity : AppCompatActivity() {
         const val EXTRA_FILE_PATH = "file_path"
         const val EXTRA_FILE_PATHS = "file_paths"
         const val EXTRA_EXTRACT_PATH = "extract_path"
+        const val EXTRA_DELETED_PATHS = "deleted_paths"
     }
 }
 
@@ -227,13 +263,15 @@ private fun OpenWithScreen(
     entry: VfsEntry,
     isArchive: Boolean,
     isApk: Boolean,
+    isMedia: Boolean,
     onShare: () -> Unit,
     onOpenWithMime: () -> Unit,
     onTextEditor: () -> Unit,
     onToolTray: () -> Unit,
     onTerminal: () -> Unit,
     onExtract: () -> Unit,
-    onVirtualBox: () -> Unit
+    onVirtualBox: () -> Unit,
+    onMediaViewer: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -298,6 +336,15 @@ private fun OpenWithScreen(
                     title = stringResource(R.string.builtin_chooser_extract),
                     enabled = isArchive,
                     onClick = onExtract
+                )
+            }
+            // ⑦ 媒体查看器（仅当选中媒体文件时启用）
+            item {
+                OpenWithItem(
+                    icon = Icons.Rounded.PlayCircle,
+                    title = stringResource(R.string.open_with_media_viewer),
+                    enabled = isMedia,
+                    onClick = onMediaViewer
                 )
             }
             // ⑦ VirtualBox 免安装运行（已隐藏）

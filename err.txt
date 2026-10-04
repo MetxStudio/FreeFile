@@ -1,0 +1,40 @@
+> Task :app:kaptGenerateStubsDebugKotlin
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:823:13 Expecting an element
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:823:39 Unexpected tokens (use ';' to separate expressions on the same line)
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:841:13 Expecting an element
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:841:41 Unexpected tokens (use ';' to separate expressions on the same line)
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:842:37 Unexpected tokens (use ';' to separate expressions on the same line)
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:844:13 Expecting an element
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:845:13 Expecting an element
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:845:37 Unexpected tokens (use ';' to separate expressions on the same line)
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:846:66 Unexpected tokens (use ';' to separate expressions on the same line)
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:847:66 Unexpected tokens (use ';' to separate expressions on the same line)
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:848:44 Unexpected tokens (use ';' to separate expressions on the same line)
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:853:18 Unexpected tokens (use ';' to separate expressions on the same line)
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:855:13 Expecting an element
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:856:13 Expecting an element
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:856:38 Unexpected tokens (use ';' to separate expressions on the same line)
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:881:13 Expecting an element
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:881:39 Unexpected tokens (use ';' to separate expressions on the same line)
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:912:13 Expecting an element
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:912:55 Unexpected tokens (use ';' to separate expressions on the same line)
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:931:13 Expecting an element
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:931:42 Unexpected tokens (use ';' to separate expressions on the same line)
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:932:41 Unexpected tokens (use ';' to separate expressions on the same line)
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:952:18 Unexpected tokens (use ';' to separate expressions on the same line)
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:954:13 Expecting an element
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:955:13 Expecting an element
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:955:40 Unexpected tokens (use ';' to separate expressions on the same line)
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:956:85 Unexpected tokens (use ';' to separate expressions on the same line)
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:957:45 Unexpected tokens (use ';' to separate expressions on the same line)
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:961:18 Unexpected tokens (use ';' to separate expressions on the same line)
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:963:13 Expecting an element
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:964:13 Expecting an element
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:964:38 Unexpected tokens (use ';' to separate expressions on the same line)
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:965:73 Unexpected tokens (use ';' to separate expressions on the same line)
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:966:73 Unexpected tokens (use ';' to separate expressions on the same line)
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:979:18 Unexpected tokens (use ';' to separate expressions on the same line)
+e: file:///D:/1AndroidProject_D/FreeFile2/app/src/main/java/com/freefile/ui/MainScreen.kt:981:13 Expecting an element
+
+> Task :app:kaptGenerateStubsDebugKotlin FAILED
+

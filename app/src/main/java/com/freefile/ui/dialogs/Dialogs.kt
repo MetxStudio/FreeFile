@@ -21,7 +21,10 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,9 +47,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.freefile.R
 import com.freefile.operations.Conflict
+import com.freefile.tools.unzip.CompressionEngine
 import com.freefile.operations.ConflictAction
 import com.freefile.operations.ConflictResolution
 import com.freefile.operations.FileOperations
@@ -892,16 +897,17 @@ private fun HorizontalDivider() {
 
 // ==================== 解压确认 ====================
 
-/** 解压确认：展示并允许修改目标目录（默认压缩包同级同名文件夹）。 */
+/** 解压确认：展示并允许修改目标目录（默认压缩包同级同名文件夹），可选输入密码。 */
 @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun ConfirmExtractDialog(
     archiveName: String,
     defaultTargetDir: String,
-    onConfirm: (targetDir: String) -> Unit,
+    onConfirm: (targetDir: String, password: String) -> Unit,
     onDismiss: () -> Unit
 ) {
     var text by remember { mutableStateOf(defaultTargetDir) }
+    var password by remember { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.dlg_extract_name, archiveName)) },
@@ -916,13 +922,209 @@ fun ConfirmExtractDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text(stringResource(R.string.dlg_extract_password_label)) },
+                    singleLine = true,
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         },
         confirmButton = {
             TextButton(
-                onClick = { if (text.isNotBlank()) onConfirm(text.trim()) },
+                onClick = { if (text.isNotBlank()) onConfirm(text.trim(), password) },
                 enabled = text.isNotBlank()
             ) { Text(stringResource(R.string.dlg_extract_start)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+        }
+    )
+}
+
+/** 创建压缩包：选择格式、压缩级别、密码（仅 ZIP）、分卷大小（仅 ZIP）。 */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CompressDialog(
+    count: Int,
+    defaultDestination: String,
+    onConfirm: (
+        destination: String,
+        format: CompressionEngine.Format,
+        level: CompressionEngine.Level,
+        password: String,
+        splitMb: Long
+    ) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var text by remember { mutableStateOf(defaultDestination) }
+    var password by remember { mutableStateOf("") }
+    var level by remember { mutableStateOf(CompressionEngine.Level.NORMAL) }
+    var format by remember { mutableStateOf(CompressionEngine.Format.ZIP) }
+    var splitMbText by remember { mutableStateOf("0") }
+    var formatExpanded by remember { mutableStateOf(false) }
+    var levelExpanded by remember { mutableStateOf(false) }
+
+    val isZip = format == CompressionEngine.Format.ZIP
+
+    // 切换格式时同步更新目标路径扩展名
+    fun updateExtension(newFormat: CompressionEngine.Format) {
+        val path = text
+        val dotIdx = path.lastIndexOf('.')
+        val base = if (dotIdx > 0) path.substring(0, dotIdx) else path
+        text = "$base.${newFormat.extension}"
+    }
+
+    val splitMb = splitMbText.toLongOrNull()?.coerceAtLeast(0L) ?: 0L
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.dlg_compress_name, count)) },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    label = { Text(stringResource(R.string.dlg_compress_target_label)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(Modifier.height(8.dp))
+
+                // 格式下拉
+                Text(stringResource(R.string.dlg_compress_format_label), style = MaterialTheme.typography.labelMedium)
+                Spacer(Modifier.height(4.dp))
+                ExposedDropdownMenuBox(
+                    expanded = formatExpanded,
+                    onExpandedChange = { formatExpanded = it }
+                ) {
+                    OutlinedTextField(
+                        value = format.name,
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = formatExpanded) },
+                        modifier = Modifier.menuAnchor().fillMaxWidth()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = formatExpanded,
+                        onDismissRequest = { formatExpanded = false }
+                    ) {
+                        CompressionEngine.Format.entries.forEach { candidate ->
+                            DropdownMenuItem(
+                                text = { Text(candidate.name) },
+                                onClick = {
+                                    if (candidate != format) {
+                                        format = candidate
+                                        updateExtension(candidate)
+                                    }
+                                    formatExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
+
+                // 压缩级别下拉
+                Text(stringResource(R.string.dlg_compress_level_label), style = MaterialTheme.typography.labelMedium)
+                Spacer(Modifier.height(4.dp))
+                ExposedDropdownMenuBox(
+                    expanded = levelExpanded,
+                    onExpandedChange = { levelExpanded = it }
+                ) {
+                    OutlinedTextField(
+                        value = level.name,
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = levelExpanded) },
+                        modifier = Modifier.menuAnchor().fillMaxWidth()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = levelExpanded,
+                        onDismissRequest = { levelExpanded = false }
+                    ) {
+                        CompressionEngine.Level.entries.forEach { candidate ->
+                            DropdownMenuItem(
+                                text = { Text(candidate.name) },
+                                onClick = { level = candidate; levelExpanded = false }
+                            )
+                        }
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
+
+                // 密码（仅 ZIP）
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text(stringResource(R.string.dlg_compress_password_label)) },
+                    singleLine = true,
+                    enabled = isZip,
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                if (!isZip) {
+                    Text(
+                        stringResource(R.string.dlg_compress_password_zip_only),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+
+                // 分卷大小（仅 ZIP）
+                OutlinedTextField(
+                    value = splitMbText,
+                    onValueChange = { if (it.all { c -> c.isDigit() }) splitMbText = it },
+                    label = { Text(stringResource(R.string.dlg_compress_split_label)) },
+                    singleLine = true,
+                    enabled = isZip,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Text(
+                    stringResource(R.string.dlg_compress_split_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.outline
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (text.isNotBlank()) {
+                        onConfirm(
+                            text.trim(),
+                            format,
+                            level,
+                            password,
+                            splitMb
+                        )
+                    }
+                },
+                enabled = text.isNotBlank()
+            ) { Text(stringResource(R.string.dlg_compress_start)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+        }
+    )
+}
+
+@Composable
+fun ConfirmOverwriteDialog(
+    path: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.dlg_compress_overwrite_title)) },
+        text = { Text(stringResource(R.string.dlg_compress_overwrite_message, path)) },
+        confirmButton = {
+            TextButton(onClick = onConfirm) { Text(stringResource(R.string.dlg_compress_overwrite_confirm)) }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }

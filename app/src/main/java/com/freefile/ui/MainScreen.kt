@@ -15,12 +15,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
@@ -139,7 +141,9 @@ import com.freefile.ui.core.FilePane
 import com.freefile.ui.dialogs.BatchRenameDialog
 import com.freefile.ui.dialogs.ConfirmDeleteDialog
 import com.freefile.ui.dialogs.ConfirmExtractDialog
+import com.freefile.ui.dialogs.CompressDialog
 import com.freefile.ui.dialogs.ConflictDialog
+import com.freefile.ui.dialogs.ConfirmOverwriteDialog
 import com.freefile.ui.dialogs.JumpToPathDialog
 import com.freefile.ui.dialogs.NewNodeDialog
 import com.freefile.ui.dialogs.PropertiesDialog
@@ -147,6 +151,7 @@ import com.freefile.ui.dialogs.SearchSettingsDialog
 import com.freefile.ui.dialogs.TaskProgressCard
 import com.freefile.ui.dialogs.TextInputDialog
 import com.freefile.ui.dialogs.UserAgreementDialog
+import com.freefile.tools.unzip.CompressionEngine
 import com.freefile.ui.files.FileClipboard
 import com.freefile.ui.files.FilterMode
 import com.freefile.ui.files.FileTypes
@@ -173,7 +178,18 @@ private sealed interface PendingAction {
     data class Rename(val entry: VfsEntry, val vm: FileViewModel) : PendingAction
     data class BatchRename(val entries: List<VfsEntry>, val vm: FileViewModel) : PendingAction
     data class NewNode(val isDir: Boolean?, val vm: FileViewModel) : PendingAction
-    data class Extract(val archivePath: String) : PendingAction
+    data class Extract(val archivePaths: List<String>) : PendingAction
+    data class Compress(
+        val entries: List<VfsEntry>,
+        val vm: FileViewModel,
+        val defaultDestination: String
+    ) : PendingAction
+    data class ConfirmCompressOverwrite(
+        val entries: List<VfsEntry>,
+        val vm: FileViewModel,
+        val destination: String,
+        val options: CompressionEngine.Options
+    ) : PendingAction
     data class Conflicts(
         val kind: OpKind,
         val entries: List<VfsEntry>,
@@ -222,9 +238,21 @@ fun MainScreen() {
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == android.app.Activity.RESULT_OK) {
-            val extractPath = result.data
+            val data = result.data
+            val extractPath = data
                 ?.getStringExtra(com.freefile.ui.OpenWithActivity.EXTRA_EXTRACT_PATH)
-            if (extractPath != null) pending = PendingAction.Extract(extractPath)
+            if (extractPath != null) {
+                pending = PendingAction.Extract(listOf(extractPath))
+                return@rememberLauncherForActivityResult
+            }
+            // 媒体查看器中删除的文件：刷新左右窗格
+            val deleted = data?.getStringArrayListExtra(
+                com.freefile.ui.OpenWithActivity.EXTRA_DELETED_PATHS
+            )
+            if (!deleted.isNullOrEmpty()) {
+                leftVm.refresh()
+                rightVm.refresh()
+            }
         }
     }
 
@@ -350,7 +378,9 @@ fun MainScreen() {
         }
     }
 
-    fun toast(msg: String) = scope.launch { snackbar.showSnackbar(msg) }
+    // 使用应用级 mainScope，避免后台任务完成回调触发时组合 scope 已取消导致
+    // StandaloneCoroutine was cancelled 异常。snackbar.showSnackbar 需在主线程协程中调用。
+    fun toast(msg: String) = FreeFileApp.instance.mainScope.launch { snackbar.showSnackbar(msg) }
 
     fun doTransfer(
         kind: OpKind,
@@ -361,10 +391,10 @@ fun MainScreen() {
     ) {
         when (kind) {
             OpKind.COPY -> TransferManager.enqueueCopy(entries, targetDir, conflicts, resolution) { ok, msg ->
-                scope.launch { if (!ok) toast(msg) }
+                if (!ok) toast(msg)
             }
             OpKind.MOVE -> TransferManager.enqueueMove(entries, targetDir, conflicts, resolution) { ok, msg ->
-                scope.launch { if (!ok) toast(msg) }
+                if (!ok) toast(msg)
             }
             else -> {}
         }
@@ -657,7 +687,7 @@ fun MainScreen() {
                                 },
                                 onExtract = {
                                     if (ArchiveEngine.isArchivePath(activeUi.path)) {
-                                        pending = PendingAction.Extract(activeUi.path)
+                                        pending = PendingAction.Extract(listOf(activeUi.path))
                                     }
                                 },
                                 onToast = { toast(it) }
@@ -846,6 +876,53 @@ fun MainScreen() {
                     )
                 }
             }
+            is PendingAction.Compress -> {
+                CompressDialog(
+                count = action.entries.size,
+                defaultDestination = action.defaultDestination,
+                onConfirm = { destination, format, level, password, splitMb ->
+                    val options = CompressionEngine.Options(
+                        format = format,
+                        level = level,
+                        password = password.trim().ifEmpty { null },
+                        splitMb = splitMb
+                    )
+                    if (java.io.File(destination).exists()) {
+                        pending = PendingAction.ConfirmCompressOverwrite(
+                            action.entries, action.vm, destination, options
+                        )
+                    } else {
+                        TransferManager.enqueueCompress(action.entries, destination, options) { ok, msg ->
+                            if (ok) {
+                                toast(context.getString(R.string.msg_compress_done))
+                                action.vm.refresh()
+                                action.vm.locateTo(destination)
+                                action.vm.clearSelection()
+                            } else toast(msg)
+                        }
+                        pending = null
+                    }
+                },
+                onDismiss = { pending = null }
+                )
+            }
+            is PendingAction.ConfirmCompressOverwrite -> {
+                ConfirmOverwriteDialog(
+                path = action.destination,
+                onConfirm = {
+                    TransferManager.enqueueCompress(action.entries, action.destination, action.options) { ok, msg ->
+                        if (ok) {
+                            toast(context.getString(R.string.msg_compress_done))
+                            action.vm.refresh()
+                            action.vm.locateTo(action.destination)
+                            action.vm.clearSelection()
+                        } else toast(msg)
+                    }
+                    pending = null
+                },
+                onDismiss = { pending = null }
+                )
+            }
             is PendingAction.BatchRename -> BatchRenameDialog(
                 entries = action.entries,
                 onApply = { pairs ->
@@ -880,14 +957,17 @@ fun MainScreen() {
                 onDismiss = { pending = null }
             )
             is PendingAction.Extract -> ConfirmExtractDialog(
-                archiveName = action.archivePath.substringAfterLast('/'),
-                defaultTargetDir = defaultExtractDir(action.archivePath),
-                onConfirm = { targetDir ->
-                    TransferManager.enqueueExtract(action.archivePath, targetDir) { ok, msg ->
-                        scope.launch {
+                archiveName = if (action.archivePaths.size == 1) {
+                    action.archivePaths.first().substringAfterLast('/')
+                } else {
+                    context.getString(R.string.dlg_extract_multiple, action.archivePaths.size)
+                },
+                defaultTargetDir = defaultExtractDir(action.archivePaths.first()),
+                onConfirm = { targetDir, password ->
+                    action.archivePaths.forEach { archivePath ->
+                        TransferManager.enqueueExtract(archivePath, targetDir, password) { ok, msg ->
                             if (ok) {
                                 toast(context.getString(R.string.msg_extract_done))
-                                // 解压目标位于本地文件系统 → 刷新双窗格（若在其中）
                                 leftVm.refresh()
                                 rightVm.refresh()
                             } else toast(msg)
@@ -913,7 +993,11 @@ fun MainScreen() {
                 )
             },
             text = {
-                Column {
+                Column(
+                    modifier = Modifier
+                        .heightIn(max = 520.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
                     // —— 打开方式三选项（需求 4 之"操作"）——
                     OpenSheetItem(
                         icon = Icons.Rounded.Share,
@@ -1022,6 +1106,34 @@ fun MainScreen() {
                         },
                         enabled = singleSel
                     )
+                    OpenSheetItem(
+                        icon = Icons.Rounded.FolderZip,
+                        title = stringResource(R.string.action_compress_archive),
+                        onClick = {
+                            showActionSheet = false
+                            val dir = activeUi.path.trimEnd('/')
+                            val defaultName = if (selected.size == 1) {
+                                selected.first().name.substringBeforeLast('.', selected.first().name)
+                            } else "archive"
+                            pending = PendingAction.Compress(
+                                selected,
+                                activeVm,
+                                "$dir/$defaultName.zip"
+                            )
+                        },
+                        enabled = selected.isNotEmpty()
+                    )
+                    OpenSheetItem(
+                        icon = Icons.Rounded.Archive,
+                        title = stringResource(R.string.action_extract_archives),
+                        onClick = {
+                            showActionSheet = false
+                            pending = PendingAction.Extract(selected.map { it.path })
+                        },
+                        enabled = selected.isNotEmpty() && selected.all {
+                            ArchiveEngine.isArchiveFile(it.name)
+                        }
+                    )
                     // Item 5：复制选中文件/文件夹路径
                     OpenSheetItem(
                         icon = Icons.Rounded.ContentPaste,
@@ -1038,30 +1150,6 @@ fun MainScreen() {
                             )
                         },
                         enabled = selected.isNotEmpty()
-                    )
-                    // 任务 7：解压（复用 PendingAction.Extract 共享逻辑）
-                    // 仅当选中单个压缩包时启用；点击后由 ConfirmExtractDialog 处理。
-                    OpenSheetItem(
-                        icon = Icons.Rounded.Archive,
-                        title = stringResource(R.string.open_with_extract),
-                        onClick = {
-                            showActionSheet = false
-                            val target = selected.firstOrNull() ?: return@OpenSheetItem
-                            pending = PendingAction.Extract(target.path)
-                        },
-                        enabled = singleSel && ArchiveEngine.isArchiveFile(selected.first().name)
-                    )
-                    // TODO 任务 7：压缩（to zip）尚未实现，需新增 ArchiveEngine.compress(entries, targetPath)
-                    // 当前先以 disabled 占位条目展示，避免用户找不到入口；后续补齐。
-                    OpenSheetItem(
-                        icon = Icons.Rounded.FolderZip,
-                        title = stringResource(R.string.action_compress),
-                        onClick = {
-                            // 占位：待 ArchiveEngine 压缩能力落地后启用
-                            showActionSheet = false
-                            toast(context.getString(R.string.action_compress_todo))
-                        },
-                        enabled = false
                     )
                 }
             },
