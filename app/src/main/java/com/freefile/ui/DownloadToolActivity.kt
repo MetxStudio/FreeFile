@@ -68,18 +68,20 @@ data class DownloadProgress(
 )
 
 private fun formatBytes(bytes: Long): String {
+	if (bytes < 0) return "0 B"
 	if (bytes < 1024) return "$bytes B"
 	val units = arrayOf("KB", "MB", "GB", "TB")
-	var value = bytes.toDouble()
-	var unit = 0
-	while (value >= 1024 && unit < units.lastIndex) {
-		value /= 1024
-		unit++
+	var value = bytes.toDouble() / 1024.0
+	var idx = 0
+	while (value >= 1024 && idx < units.lastIndex) {
+		value /= 1024.0
+		idx++
 	}
-	return "%.1f %s".format(value, units[unit])
+	val pattern = if (value < 10) "%.2f" else "%.1f"
+	return String.format(java.util.Locale.US, "$pattern %s", value, units[idx])
 }
 
-private const val TOOL_CATALOG_URL = "https://metxandroid.oss-cn-beijing.aliyuncs.com/json/tools.json"
+private const val TOOL_CATALOG_URL = "https://your-domain.example/json/tools.json"
 
 class DownloadToolActivity : AppCompatActivity() {
 	private val viewModel by lazy {
@@ -349,13 +351,13 @@ private fun DownloadToolScreen(
 											progress = { if (hasTotal) progress.downloadedBytes.toFloat() / progress.totalBytes else 0f },
 											modifier = Modifier.fillMaxWidth().padding(top = 10.dp)
 										)
-										Text(
-											"${percent?.let { "$it% · " } ?: "下载中 · "}${formatBytes(progress.downloadedBytes)} / " +
-												if (hasTotal) formatBytes(progress.totalBytes) else "未知大小" +
-												" · ${formatBytes(progress.speedBytesPerSecond)}/s",
-											style = MaterialTheme.typography.bodySmall,
-											modifier = Modifier.padding(top = 4.dp)
-										)
+											val totalText = if (hasTotal) formatBytes(progress.totalBytes) else "未知大小"
+											Text(
+												"${percent?.let { "$it% · " } ?: "下载中 · "}${formatBytes(progress.downloadedBytes)} / " +
+													"$totalText · ${formatBytes(progress.speedBytesPerSecond)}/s",
+												style = MaterialTheme.typography.bodySmall,
+												modifier = Modifier.padding(top = 4.dp)
+											)
 									}
 								}
 								Row(Modifier.fillMaxWidth().padding(top = 10.dp), horizontalArrangement = Arrangement.End) {

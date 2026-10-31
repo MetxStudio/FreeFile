@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#2f6fed">
+<title>FreeFile Privacy Policy</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#ffffff; --text:#1f2329; --muted:#6b7480;
+    --line:#e6e9ee; --accent:#2f6fed; --accent-soft:#eef3ff;
+    --warn-bg:#fff8e8; --warn-line:#f0c36d; --info-bg:#eef3ff;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0e1013; --card:#16191e; --text:#e7eaee; --muted:#98a2b0;
+      --line:#252b33; --accent:#7aa6ff; --accent-soft:#1a2332;
+      --warn-bg:#241f14; --warn-line:#6d5620; --info-bg:#1a2332;
+    }
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",
+      "Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+    font-size:16px;line-height:1.75;overflow-wrap:break-word;word-break:break-word;
+  }
+  a{color:var(--accent);text-decoration:none;}
+  .wrap{max-width:820px;margin:0 auto;padding:20px 16px calc(56px + env(safe-area-inset-bottom));}
+  .doc-head{padding:2px 2px 6px;}
+  .doc-head h1{font-size:23px;line-height:1.35;font-weight:700;margin:0 0 6px;letter-spacing:.5px;}
+  .doc-head .sub{margin:0 0 12px;font-size:14px;color:var(--muted);}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;}
+  .meta span{
+    font-size:12px;line-height:1.5;color:var(--accent);background:var(--accent-soft);
+    border-radius:999px;padding:4px 11px;white-space:nowrap;
+  }
+  .notice{
+    margin:18px 0;padding:14px 16px;font-size:14.5px;line-height:1.72;
+    background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:14px;
+  }
+  .summary{
+    margin:18px 0;padding:14px 16px;font-size:14.5px;line-height:1.72;
+    background:var(--info-bg);border:1px solid var(--line);border-radius:14px;
+  }
+  .toc{
+    margin:18px 0;padding:6px 16px 14px;background:var(--card);
+    border:1px solid var(--line);border-radius:14px;
+  }
+  .toc h2{margin:10px 0 8px;font-size:13px;font-weight:600;letter-spacing:2px;color:var(--muted);}
+  .toc ol{margin:0;padding-left:20px;font-size:14.5px;}
+  .toc li{margin:3px 0;}
+  .toc a{color:var(--text);}
+  section.clause{
+    margin:14px 0;padding:16px 16px 6px;background:var(--card);
+    border:1px solid var(--line);border-radius:14px;scroll-margin-top:16px;
+  }
+  section.clause h2{
+    margin:0 0 12px;padding-left:10px;font-size:16.5px;font-weight:700;
+    line-height:1.45;border-left:4px solid var(--accent);
+  }
+  .item{display:flex;gap:8px;margin:0 0 10px;font-size:15px;}
+  .item .num{flex:0 0 auto;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums;}
+  .item .txt{flex:1 1 auto;}
+  ul.sub{margin:-2px 0 12px;padding-left:38px;font-size:14.5px;}
+  ul.sub li{margin:0 0 6px;}
+  .doc-foot{
+    margin-top:26px;padding:16px 8px;text-align:center;font-size:12.5px;
+    line-height:1.8;color:var(--muted);
+  }
+  .doc-foot .line{display:block;width:36px;height:2px;margin:0 auto 12px;background:var(--line);border-radius:2px;}
+  #toTop{
+    position:fixed;right:16px;bottom:calc(20px + env(safe-area-inset-bottom));
+    width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+    font-size:17px;color:var(--accent);background:var(--card);
+    border:1px solid var(--line);border-radius:50%;
+    box-shadow:0 4px 14px rgba(0,0,0,.14);cursor:pointer;opacity:0;
+    pointer-events:none;transform:translateY(8px);
+    transition:opacity .2s ease, transform .2s ease;-webkit-tap-highlight-color:transparent;
+  }
+  #toTop.show{opacity:1;pointer-events:auto;transform:none;}
+  #toTop:active{transform:scale(.94);}
+  @media (min-width:600px){
+    body{font-size:16.5px;} .doc-head h1{font-size:27px;}
+    section.clause{padding:20px 22px 8px;} .item{font-size:15.5px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="doc-head">
+    <h1>FreeFile Privacy Policy</h1>
+    <p class="sub">This Policy explains how FreeFile processes and protects your information. Please read it carefully before use.</p>
+    <div class="meta">
+      <span>Version: v1.0</span>
+      <span>Last Updated: 2025-01-01</span>
+      <span>Effective Date: Same as Last Updated</span>
+      <span>MIT License</span>
+    </div>
+  </header>
+
+  <div class="notice">
+    <strong>Important Notice:</strong> FreeFile is an open-source file management tool. Its core file management features are primarily processed <strong>locally</strong>. We will not proactively upload your file contents merely because you install the App. If you use features that require network access, third-party tools, or third-party services, related requests may involve necessary information processing, as described in this Policy. Please read and understand this Policy before use.
+  </div>
+
+  <div class="summary">
+    <strong>Summary:</strong> We aim to follow the principle of minimum necessity. File browsing, copying, moving, deletion, renaming, compression, and decompression operations are generally completed locally on your device. We do not sell your personal information. You should handle sensitive files and permissions with caution. Third-party components and services are governed by their own terms.
+  </div>
+
+  <nav class="toc" aria-label="Contents">
+    <h2>CONTENTS</h2>
+    <ol>
+      <li><a href="#p1">Introduction and Scope</a></li>
+      <li><a href="#p2">Definitions</a></li>
+      <li><a href="#p3">Types of Information We Process</a></li>
+      <li><a href="#p4">Purposes and Principles of Processing</a></li>
+      <li><a href="#p5">Local Processing and Network Transmission</a></li>
+      <li><a href="#p6">Device Permissions</a></li>
+      <li><a href="#p7">Sharing, Transfer, and Public Disclosure</a></li>
+      <li><a href="#p8">Storage Location and Retention Period</a></li>
+      <li><a href="#p9">Information Security</a></li>
+      <li><a href="#p10">Your Rights</a></li>
+      <li><a href="#p11">Protection of Minors</a></li>
+      <li><a href="#p12">Third-Party Components and Services</a></li>
+      <li><a href="#p13">Updates to This Policy</a></li>
+      <li><a href="#p14">Contact Us</a></li>
+    </ol>
+  </nav>
+
+  <section class="clause" id="p1">
+    <h2>1. Introduction and Scope</h2>
+    <p class="item"><span class="num">1.1</span><span class="txt">This Privacy Policy (the "Policy") is formulated by the FreeFile project author/distributor ("we" or "us") and explains how we collect, use, store, share, and protect information during your installation and use of the FreeFile application (the "App"), as well as your related rights.</span></p>
+    <p class="item"><span class="num">1.2</span><span class="txt">This Policy applies to the FreeFile App and its accompanying features. The App is an open-source project. The source code is published at <a href="https://github.com/MetxStudio/FreeFile" target="_blank" rel="noopener">https://github.com/MetxStudio/FreeFile</a> under the MIT License. Public availability of the source code does not mean that your personal information or file contents will be made public.</span></p>
+    <p class="item"><span class="num">1.3</span><span class="txt">This Policy does not apply to third-party components, third-party services, or third-party websites/services accessed through the App. Third parties have their own privacy policies, which you should read before use.</span></p>
+    <p class="item"><span class="num">1.4</span><span class="txt">This Policy and the FreeFile User Agreement together constitute the complete agreement regarding your use of the App. If this Policy conflicts with the User Agreement regarding personal information processing, this Policy shall prevail.</span></p>
+  </section>
+
+  <section class="clause" id="p2">
+    <h2>2. Definitions</h2>
+    <p class="item"><span class="num">2.1</span><span class="txt">"Personal information" means various types of information recorded electronically or otherwise relating to an identified or identifiable natural person, excluding information after anonymization.</span></p>
+    <p class="item"><span class="num">2.2</span><span class="txt">"Local processing" means that the relevant information is processed only on your device and is not proactively uploaded by us to servers controlled by us.</span></p>
+    <p class="item"><span class="num">2.3</span><span class="txt">"Device and operational information" may include device model, operating system version, app version, language settings, network type, IP address, request time, crash or diagnostic logs, and similar information, depending on the actual features and services you use.</span></p>
+    <p class="item"><span class="num">2.4</span><span class="txt">"Third-party services" means network services, tools, libraries, or components provided by third parties that may be called or integrated through the App.</span></p>
+  </section>
+
+  <section class="clause" id="p3">
+    <h2>3. Types of Information We Process</h2>
+    <p class="item"><span class="num">3.1</span><span class="txt">Files and path information you choose to process. When you use file browsing, copying, moving, deletion, renaming, compression, decompression, and similar features, the App needs to access the files, folders, and path information you select to perform the corresponding operations. Such information is generally processed locally on your device. We will not proactively upload your file contents merely because you install the App.</span></p>
+    <p class="item"><span class="num">3.2</span><span class="txt">Device and operational information. When you use features that require network access, download updates, access third-party services, or when error diagnostics occur, related requests may include device model, operating system version, app version, language, network type, IP address, timestamp, and necessary log information. Such information is used to complete network requests, secure services, troubleshoot issues, and improve compatibility.</span></p>
+    <p class="item"><span class="num">3.3</span><span class="txt">Permission-related information. To provide file management, network access, app installation, and other features, the App may request system permissions such as storage/file access, network access, and app installation. We request permissions only to the extent necessary for the corresponding features, and you may manage or revoke permissions in your system settings.</span></p>
+    <p class="item"><span class="num">3.4</span><span class="txt">Information you voluntarily provide. When you contact us via GitHub Issues, email, or other means, you may voluntarily provide account names, contact details, problem descriptions, logs, screenshots, and similar information. Please avoid submitting sensitive personal information, confidential file contents, or other people's personal information through public channels.</span></p>
+    <p class="item"><span class="num">3.5</span><span class="txt">Information generated by third-party components. Third-party libraries, tools, or services integrated into or called by the App may process information under their own privacy policies. We recommend that you read the third-party terms before using the relevant features. We do not control the independent personal information processing activities of third parties.</span></p>
+    <p class="item"><span class="num">3.6</span><span class="txt">We do not proactively collect your contacts, SMS messages, call logs, precise location, biometric information, or health information, unless a specific feature clearly requires it and separate explanation is provided in the interface and necessary authorization is obtained.</span></p>
+  </section>
+
+  <section class="clause" id="p4">
+    <h2>4. Purposes and Principles of Processing</h2>
+    <p class="item"><span class="num">4.1</span><span class="txt">We process relevant information for the following purposes: providing file management and tool features; completing operations you initiate; enabling network access and third-party service calls; safeguarding app and device security; troubleshooting crashes, errors, and compatibility issues; responding to your inquiries, complaints, or Issues; and complying with legal and regulatory requirements.</span></p>
+    <p class="item"><span class="num">4.2</span><span class="txt">We follow the principles of lawfulness, legitimacy, necessity, and good faith, and process information only to the minimum extent necessary. For local file operations, relevant information is generally processed within your device and is not necessarily transmitted to us.</span></p>
+    <p class="item"><span class="num">4.3</span><span class="txt">Where required by applicable law, the legal bases for processing personal information may include: your consent; necessity for performing a contract to which you are a party; necessity for complying with legal obligations; necessity for responding to public health emergencies or protecting natural persons' life, health, and property safety in emergencies; processing information you have made public or that is otherwise lawfully public within a reasonable scope; and other circumstances provided by laws and regulations.</span></p>
+    <p class="item"><span class="num">4.4</span><span class="txt">If we need to use information for purposes not stated in this Policy, or use information collected for a specific purpose for another purpose, we will notify you separately and obtain necessary consent in accordance with law.</span></p>
+  </section>
+
+  <section class="clause" id="p5">
+    <h2>5. Local Processing and Network Transmission</h2>
+    <p class="item"><span class="num">5.1</span><span class="txt">FreeFile's core file management features are primarily processed locally. File browsing, copying, moving, deletion, renaming, compression, and decompression operations generally occur directly on your device, and the relevant file contents will not be proactively uploaded by us merely because you install or open the App.</span></p>
+    <p class="item"><span class="num">5.2</span><span class="txt">When you use features that require network access, the App may send information necessary to complete the request to the relevant servers or third-party services, such as request addresses, necessary parameters, device and network information, and timestamps. The specific information transmitted depends on the actual features.</span></p>
+    <p class="item"><span class="num">5.3</span><span class="txt">If you choose to upload, share, send files to third-party services, or transmit files over a network, the relevant file contents and transmission information will be initiated by you and may be subject to third-party terms of service and privacy policies. Before transmitting, please confirm the recipient, purpose, and sensitivity of the data.</span></p>
+    <p class="item"><span class="num">5.4</span><span class="txt">Internet transmission and storage are not absolutely secure. We will take reasonable measures to protect information, but we cannot guarantee that any transmission or storage method is absolutely secure. Please avoid transmitting sensitive data over insecure networks.</span></p>
+  </section>
+
+  <section class="clause" id="p6">
+    <h2>6. Device Permissions</h2>
+    <p class="item"><span class="num">6.1</span><span class="txt">File/storage access permission: used to browse, read, copy, move, delete, rename, compress, and decompress files and folders you select. Refusing this permission may prevent related file management features from working.</span></p>
+    <p class="item"><span class="num">6.2</span><span class="txt">Network permission: used to access the network, download updates, call online features, or access third-party services. Refusing this permission may make network-dependent features unavailable.</span></p>
+    <p class="item"><span class="num">6.3</span><span class="txt">App installation permission: if the App provides app installation or update features, app installation permission may be required. This permission is used only when you actively use the corresponding feature, and you can disable it in system settings at any time.</span></p>
+    <p class="item"><span class="num">6.4</span><span class="txt">Other permissions: if a specific feature requires other system permissions, we will explain the purpose in the relevant interface or system authorization prompt. You have the right to refuse or revoke authorization, but this may affect the availability of the corresponding feature.</span></p>
+  </section>
+
+  <section class="clause" id="p7">
+    <h2>7. Sharing, Transfer, and Public Disclosure</h2>
+    <p class="item"><span class="num">7.1</span><span class="txt">We do not sell your personal information.</span></p>
+    <p class="item"><span class="num">7.2</span><span class="txt">We will not share your personal information with third parties unless: you have given explicit consent; it is necessary to complete an operation you initiated; it is necessary to provide a third-party service you requested; it is required by mandatory laws, regulations, judicial authorities, or administrative authorities; it is necessary to protect your, our, or others' lawful rights, property safety, or public safety; or in connection with a merger, division, dissolution, bankruptcy declaration, or similar event, where information is transferred in accordance with law and remains subject to this Policy.</span></p>
+    <p class="item"><span class="num">7.3</span><span class="txt">If personal information transfer is involved, we will inform you of the recipient's name and contact details and require the recipient to continue to comply with this Policy. If the recipient changes the original processing purpose or method, it will obtain your consent again in accordance with law.</span></p>
+    <p class="item"><span class="num">7.4</span><span class="txt">We will not publicly disclose your personal information unless we obtain your separate consent or laws and regulations provide otherwise.</span></p>
+    <p class="item"><span class="num">7.5</span><span class="txt">Information you voluntarily submit through public channels such as GitHub Issues may be visible to the public. Please do not submit sensitive personal information, confidential information, or other people's personal information through public channels.</span></p>
+  </section>
+
+  <section class="clause" id="p8">
+    <h2>8. Storage Location and Retention Period</h2>
+    <p class="item"><span class="num">8.1</span><span class="txt">FreeFile's core file management features are primarily processed locally, and relevant files and configurations are generally stored on your device. You are responsible for the security and backup of your device data.</span></p>
+    <p class="item"><span class="num">8.2</span><span class="txt">For information generated through network features, diagnostics, or your contact with us, we will retain it for the shortest period necessary to fulfill the processing purposes, unless otherwise required by laws and regulations or necessary for handling disputes.</span></p>
+    <p class="item"><span class="num">8.3</span><span class="txt">If relevant information no longer needs to be retained, we will delete or anonymize it in accordance with applicable law. The location and retention period for information stored by third-party services are governed by their privacy policies.</span></p>
+  </section>
+
+  <section class="clause" id="p9">
+    <h2>9. Information Security</h2>
+    <p class="item"><span class="num">9.1</span><span class="txt">We take reasonable technical and administrative measures to protect relevant information from unauthorized access, disclosure, alteration, loss, or misuse, such as restricting unnecessary access, following the principle of least privilege, promptly addressing security issues, and updating versions.</span></p>
+    <p class="item"><span class="num">9.2</span><span class="txt">Please properly safeguard your device, accounts, and permission settings, and avoid processing sensitive files on untrusted devices or networks. If you discover a security risk or vulnerability, you may contact us through the project repository.</span></p>
+    <p class="item"><span class="num">9.3</span><span class="txt">If a personal information security incident occurs, we will promptly take remedial measures in accordance with applicable law and, where necessary, inform you of the incident, possible impact, measures taken, and suggestions for protection.</span></p>
+  </section>
+
+  <section class="clause" id="p10">
+    <h2>10. Your Rights</h2>
+    <p class="item"><span class="num">10.1</span><span class="txt">To the extent permitted by applicable law, you have the right to access, correct, supplement, or delete your personal information, withdraw consent, or request an explanation of this Policy.</span></p>
+    <p class="item"><span class="num">10.2</span><span class="txt">You can manage or revoke app permissions in system settings. To exercise other rights, you may submit a request through the "Contact Us" section of this Policy. We will process it in accordance with law after verifying your identity.</span></p>
+    <p class="item"><span class="num">10.3</span><span class="txt">Withdrawal of consent does not affect the validity of processing activities carried out based on consent before withdrawal. If withdrawal of consent makes a feature unavailable, you bear the corresponding consequences.</span></p>
+    <p class="item"><span class="num">10.4</span><span class="txt">If you believe that our personal information processing activities have harmed your lawful rights, you may complain to a competent regulatory authority or file a lawsuit in accordance with law.</span></p>
+  </section>
+
+  <section class="clause" id="p11">
+    <h2>11. Protection of Minors</h2>
+    <p class="item"><span class="num">11.1</span><span class="txt">The App is primarily intended for users with the corresponding civil capacity. If you are a minor under 18, please read this Policy with your guardian and use the App only after obtaining your guardian's consent.</span></p>
+    <p class="item"><span class="num">11.2</span><span class="txt">Guardians should guide minors in using file management features correctly and prevent them from processing sensitive files, disclosing personal information, or performing unauthorized operations.</span></p>
+    <p class="item"><span class="num">11.3</span><span class="txt">If we discover that a minor's personal information has been processed without the guardian's consent, we will take necessary measures such as deletion in accordance with law.</span></p>
+  </section>
+
+  <section class="clause" id="p12">
+    <h2>12. Third-Party Components and Services</h2>
+    <p class="item"><span class="num">12.1</span><span class="txt">The App may integrate or call third-party libraries, tools, and services. Third-party components are governed by their respective licenses, terms of service, and privacy policies.</span></p>
+    <p class="item"><span class="num">12.2</span><span class="txt">Third-party services may independently collect, use, or share information, and we cannot control their independent personal information processing activities. Before using third-party services, you should read and agree to their privacy policies.</span></p>
+    <p class="item"><span class="num">12.3</span><span class="txt">For privacy issues caused by third-party content or third-party services, please contact the third party using the contact information it provides. We will provide necessary assistance within a reasonable scope.</span></p>
+  </section>
+
+  <section class="clause" id="p13">
+    <h2>13. Updates to This Policy</h2>
+    <p class="item"><span class="num">13.1</span><span class="txt">We may update this Policy based on feature adjustments, legal or regulatory changes, or security needs. Updated versions will be published in the App or on the project page, with the last updated date and effective date indicated.</span></p>
+    <p class="item"><span class="num">13.2</span><span class="txt">If an update involves material changes, such as substantive changes to processing purposes, information types, or sharing methods, we will notify you through prominent means in accordance with law and obtain your consent again where necessary.</span></p>
+    <p class="item"><span class="num">13.3</span><span class="txt">If you continue to use the App after an updated Policy takes effect, you are deemed to have read and accepted the updated Policy. If you do not agree, you should stop using the App and uninstall it.</span></p>
+  </section>
+
+  <section class="clause" id="p14">
+    <h2>14. Contact Us</h2>
+    <p class="item"><span class="num">14.1</span><span class="txt">If you have any questions, comments, complaints, or requests regarding this Policy, personal information processing, or privacy protection in the App, you may submit an Issue at the project repository <a href="https://github.com/MetxStudio/FreeFile" target="_blank" rel="noopener">https://github.com/MetxStudio/FreeFile</a>, or contact the project maintainer.</span></p>
+    <p class="item"><span class="num">14.2</span><span class="txt">To protect the security of your information, we may need to verify your identity before processing your request. We will respond within a reasonable period.</span></p>
+  </section>
+
+  <footer class="doc-foot">
+    <span class="line"></span>
+    FreeFile is an open-source project licensed under the MIT License<br>
+    This Policy and the FreeFile User Agreement jointly apply to the App<br>
+    © FreeFile Project
+  </footer>
+</div>
+
+<button id="toTop" type="button" aria-label="Back to top">↑</button>
+<script>
+  (function () {
+    var btn = document.getElementById('toTop');
+    function onScroll() {
+      if (window.scrollY > 400) btn.classList.add('show');
+      else btn.classList.remove('show');
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    btn.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    onScroll();
+  })();
+</script>
+</body>
+</html>

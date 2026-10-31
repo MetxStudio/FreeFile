@@ -3,6 +3,8 @@ package com.freefile.ui.files
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -325,13 +327,14 @@ private fun FileRow(
         )
         Spacer(Modifier.size(12.dp))
         Column(modifier = Modifier.weight(1f)) {
+            // 长文件名：去掉省略号，允许手指左右滑动查看完整名称
             Text(
                 text = entry.name,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodyLarge,
                 color = if (entry.isHidden) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
-                else MaterialTheme.colorScheme.onSurface
+                else MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.horizontalScroll(rememberScrollState())
             )
             Text(
                 text = subtitle,
@@ -406,13 +409,13 @@ private fun FileGridCell(
                 )
             }
         }
+        // 长文件名：去掉省略号，允许手指左右滑动查看完整名称
         Text(
             text = entry.name,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.bodySmall,
             textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
         )
         if (sizeText.isNotEmpty()) {
             Text(

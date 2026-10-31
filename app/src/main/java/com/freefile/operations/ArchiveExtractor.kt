@@ -38,7 +38,6 @@ object ArchiveExtractor {
     fun extract(
         archivePath: String,
         targetDir: String,
-        password: String? = null,
         onProgress: (filesDone: Int, totalFiles: Int, bytesDone: Long, totalBytes: Long, currentFile: String) -> Unit,
         isCancelled: () -> Boolean
     ) {
@@ -58,9 +57,9 @@ object ArchiveExtractor {
 
         when {
             name.endsWith(".zip") || name.endsWith(".jar") || name.endsWith(".apk") -> {
-                val zf = ZipFile(f, password?.takeIf { it.isNotBlank() }?.toCharArray())
-                if (zf.isEncrypted && password.isNullOrBlank()) {
-                    throw VfsException("该压缩包已加密，请输入密码后重试")
+                val zf = ZipFile(f)
+                if (zf.isEncrypted) {
+                    throw VfsException("该压缩包已加密，本版本不再支持带密码的压缩包，请使用文件解密功能处理独立加密文件(.cry)")
                 }
                 for (h in zf.fileHeaders) {
                     checkCancel(isCancelled)
@@ -77,8 +76,7 @@ object ArchiveExtractor {
                 }
             }
             name.endsWith(".7z") -> {
-                val pw = password?.takeIf { it.isNotBlank() }?.toByteArray()
-                (if (pw != null) SevenZFile(f, pw) else SevenZFile(f)).use { z ->
+                SevenZFile(f).use { z ->
                     for (e in z.entries) {
                         checkCancel(isCancelled)
                         val lp = (e.name ?: continue).replace('\\', '/').trim('/')
@@ -99,9 +97,7 @@ object ArchiveExtractor {
                 }
             }
             name.endsWith(".rar") -> {
-                val pw = password?.takeIf { it.isNotBlank() }
-                val archive = if (pw != null) JunrarArchive(f, pw) else JunrarArchive(f)
-                archive.use { a ->
+                JunrarArchive(f).use { a ->
                     for (h in a.fileHeaders) {
                         checkCancel(isCancelled)
                         val lp = h.fileName.replace('\\', '/').trim('/')

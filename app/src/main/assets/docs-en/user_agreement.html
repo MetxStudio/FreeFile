@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#2f6fed">
+<title>FreeFile User Agreement</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#ffffff; --text:#1f2329; --muted:#6b7480;
+    --line:#e6e9ee; --accent:#2f6fed; --accent-soft:#eef3ff;
+    --warn-bg:#fff8e8; --warn-line:#f0c36d;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0e1013; --card:#16191e; --text:#e7eaee; --muted:#98a2b0;
+      --line:#252b33; --accent:#7aa6ff; --accent-soft:#1a2332;
+      --warn-bg:#241f14; --warn-line:#6d5620;
+    }
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",
+      "Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+    font-size:16px;line-height:1.75;overflow-wrap:break-word;word-break:break-word;
+  }
+  a{color:var(--accent);text-decoration:none;}
+  .wrap{max-width:820px;margin:0 auto;padding:20px 16px calc(56px + env(safe-area-inset-bottom));}
+  .doc-head{padding:2px 2px 6px;}
+  .doc-head h1{font-size:23px;line-height:1.35;font-weight:700;margin:0 0 6px;letter-spacing:.5px;}
+  .doc-head .sub{margin:0 0 12px;font-size:14px;color:var(--muted);}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;}
+  .meta span{
+    font-size:12px;line-height:1.5;color:var(--accent);background:var(--accent-soft);
+    border-radius:999px;padding:4px 11px;white-space:nowrap;
+  }
+  .notice{
+    margin:18px 0;padding:14px 16px;font-size:14.5px;line-height:1.72;
+    background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:14px;
+  }
+  .toc{
+    margin:18px 0;padding:6px 16px 14px;background:var(--card);
+    border:1px solid var(--line);border-radius:14px;
+  }
+  .toc h2{margin:10px 0 8px;font-size:13px;font-weight:600;letter-spacing:2px;color:var(--muted);}
+  .toc ol{margin:0;padding-left:20px;font-size:14.5px;}
+  .toc li{margin:3px 0;}
+  .toc a{color:var(--text);}
+  section.clause{
+    margin:14px 0;padding:16px 16px 6px;background:var(--card);
+    border:1px solid var(--line);border-radius:14px;scroll-margin-top:16px;
+  }
+  section.clause h2{
+    margin:0 0 12px;padding-left:10px;font-size:16.5px;font-weight:700;
+    line-height:1.45;border-left:4px solid var(--accent);
+  }
+  .item{display:flex;gap:8px;margin:0 0 10px;font-size:15px;}
+  .item .num{flex:0 0 auto;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums;}
+  .item .txt{flex:1 1 auto;}
+  ul.sub{margin:-2px 0 12px;padding-left:38px;font-size:14.5px;}
+  ul.sub li{margin:0 0 6px;}
+  .doc-foot{
+    margin-top:26px;padding:16px 8px;text-align:center;font-size:12.5px;
+    line-height:1.8;color:var(--muted);
+  }
+  .doc-foot .line{display:block;width:36px;height:2px;margin:0 auto 12px;background:var(--line);border-radius:2px;}
+  #toTop{
+    position:fixed;right:16px;bottom:calc(20px + env(safe-area-inset-bottom));
+    width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+    font-size:17px;color:var(--accent);background:var(--card);
+    border:1px solid var(--line);border-radius:50%;
+    box-shadow:0 4px 14px rgba(0,0,0,.14);cursor:pointer;opacity:0;
+    pointer-events:none;transform:translateY(8px);
+    transition:opacity .2s ease, transform .2s ease;-webkit-tap-highlight-color:transparent;
+  }
+  #toTop.show{opacity:1;pointer-events:auto;transform:none;}
+  #toTop:active{transform:scale(.94);}
+  @media (min-width:600px){
+    body{font-size:16.5px;} .doc-head h1{font-size:27px;}
+    section.clause{padding:20px 22px 8px;} .item{font-size:15.5px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="doc-head">
+    <h1>FreeFile User Agreement</h1>
+    <p class="sub">Please read and fully understand this Agreement before using FreeFile.</p>
+    <div class="meta">
+      <span>Version: v1.0</span>
+      <span>Last Updated: 2025-01-01</span>
+      <span>Effective Date: Same as Last Updated</span>
+      <span>MIT License</span>
+    </div>
+  </header>
+
+  <div class="notice">
+    <strong>Important Notice:</strong> This Agreement contains provisions regarding <strong>disclaimers, limitation of liability, changes to this Agreement, dispute resolution, and open-source licensing</strong> that may materially affect your rights. Please read them carefully. If you are a minor under 18, please read this Agreement with your guardian and use the App only after obtaining your guardian's consent. If you do not agree to any part of this Agreement, please stop installing or using the App and uninstall it.
+  </div>
+
+  <nav class="toc" aria-label="Contents">
+    <h2>CONTENTS</h2>
+    <ol>
+      <li><a href="#s1">Definitions and Acceptance</a></li>
+      <li><a href="#s2">Project License and Open Source Notice</a></li>
+      <li><a href="#s3">License to Use and Restrictions</a></li>
+      <li><a href="#s4">User Responsibilities and Operational Risks</a></li>
+      <li><a href="#s5">Third-Party Content and Third-Party Services</a></li>
+      <li><a href="#s6">Privacy and Data Protection</a></li>
+      <li><a href="#s7">Intellectual Property</a></li>
+      <li><a href="#s8">Disclaimer</a></li>
+      <li><a href="#s9">Limitation of Liability</a></li>
+      <li><a href="#s10">Changes, Suspension, and Termination</a></li>
+      <li><a href="#s11">Governing Law and Dispute Resolution</a></li>
+      <li><a href="#s12">Contact</a></li>
+      <li><a href="#s13">Acceptance</a></li>
+    </ol>
+  </nav>
+
+  <section class="clause" id="s1">
+    <h2>1. Definitions and Acceptance</h2>
+    <p class="item"><span class="num">1.1</span><span class="txt">This Agreement is a legally binding agreement between you and the FreeFile project author/distributor (hereinafter "we" or "us") regarding the installation and use of the FreeFile application (hereinafter the "App").</span></p>
+    <p class="item"><span class="num">1.2</span><span class="txt">"App" means the FreeFile application and its accompanying documentation, configurations, tools, and updates. "You" means the natural person, legal entity, or other organization that installs or uses the App. "Third-Party Components" means third-party libraries, tools, services, and licensed content integrated into or called by the App.</span></p>
+    <p class="item"><span class="num">1.3</span><span class="txt">Before installing or using the App, please read and fully understand this Agreement. By clicking "Agree and Continue," actually installing, using, or continuing to use the App, you acknowledge that you have read, understood, and agree to be bound by all terms of this Agreement.</span></p>
+    <p class="item"><span class="num">1.4</span><span class="txt">If you do not agree to any part of this Agreement, please immediately stop installing or using the App and uninstall it.</span></p>
+    <p class="item"><span class="num">1.5</span><span class="txt">This Agreement and the FreeFile Privacy Policy together constitute the complete agreement regarding your use of the App. If the Privacy Policy conflicts with this Agreement, the Privacy Policy shall prevail with respect to personal information processing, and this Agreement shall prevail with respect to other matters.</span></p>
+  </section>
+
+  <section class="clause" id="s2">
+    <h2>2. Project License and Open Source Notice</h2>
+    <p class="item"><span class="num">2.1</span><span class="txt">The App is an open-source project. The source code is published at: <a href="https://github.com/MetxStudio/FreeFile" target="_blank" rel="noopener">https://github.com/MetxStudio/FreeFile</a>. This project is licensed under the MIT License.</span></p>
+    <p class="item"><span class="num">2.2</span><span class="txt">Except for Third-Party Components and their license terms expressly stated otherwise in the project, you may use, copy, modify, merge, publish, sublicense, and/or sell copies of the project in accordance with the MIT License, provided that the original copyright notice and permission notice are retained in all copies or substantial portions of the software.</span></p>
+    <p class="item"><span class="num">2.3</span><span class="txt">This Agreement does not replace, restrict, or modify the licensing of the project source code under the MIT License. If this Agreement conflicts with the MIT License regarding source code licensing, the MIT License shall prevail.</span></p>
+    <p class="item"><span class="num">2.4</span><span class="txt">The open-source license applies only to the project source code and the content expressly covered by that license. It does not grant any rights to the project name, trademarks, icons, branding, or other identifying content.</span></p>
+  </section>
+
+  <section class="clause" id="s3">
+    <h2>3. License to Use and Restrictions</h2>
+    <p class="item"><span class="num">3.1</span><span class="txt">Subject to your compliance with this Agreement and applicable laws, we grant you a personal, non-exclusive, non-transferable, revocable license to install and use the App.</span></p>
+    <p class="item"><span class="num">3.2</span><span class="txt">You undertake not to use the App for any unlawful, infringing, malicious, or cybersecurity-endangering activities, including but not limited to:</span></p>
+    <ul class="sub">
+      <li>accessing, probing, scanning, or attacking others' systems, networks, or devices without authorization;</li>
+      <li>creating or distributing malware, viruses, Trojan horses, or other harmful programs;</li>
+      <li>infringing others' privacy, personal information, trade secrets, intellectual property, or other lawful rights;</li>
+      <li>removing, circumventing, or tampering with copyright, license, or other rights notices of the App;</li>
+      <li>using the App for unauthorized access, attacks, malware distribution, or privacy infringement;</li>
+      <li>other activities that violate laws, regulations, public order and good morals, or this Agreement.</li>
+    </ul>
+    <p class="item"><span class="num">3.3</span><span class="txt">You may not represent that we provide guarantees, endorsements, or joint liability for your use of the App, unless otherwise mandatorily required by applicable law.</span></p>
+    <p class="item"><span class="num">3.4</span><span class="txt">If you are a minor under 18, you should read this Agreement with your guardian and use the App only after obtaining your guardian's consent. Your guardian should supervise your use of the App.</span></p>
+  </section>
+
+  <section class="clause" id="s4">
+    <h2>4. User Responsibilities and Operational Risks</h2>
+    <p class="item"><span class="num">4.1</span><span class="txt">The App may provide file browsing, copying, moving, deletion, renaming, compression, decompression, network access, tool invocation, and app installation features. Some features involve operations on your device's file system, network, and system permissions.</span></p>
+    <p class="item"><span class="num">4.2</span><span class="txt">Before performing any operation, you should confirm the target, scope, required permissions, and expected results. You are responsible for the risks and consequences arising from mistaken operations, file overwriting, file deletion, permission grants, network transmission, third-party tool invocation, device damage, or data loss.</span></p>
+    <p class="item"><span class="num">4.3</span><span class="txt">We strongly recommend that you back up data before deletion, moving, overwriting, batch processing, or other important operations, and that you grant system permissions with caution. You should not use the App to process or transmit files, personal information, confidential information, or legally protected data that you are not authorized to handle.</span></p>
+    <p class="item"><span class="num">4.4</span><span class="txt">You are solely responsible for any liability arising from your use of the App in violation of laws, regulations, this Agreement, or third-party licensing requirements.</span></p>
+  </section>
+
+  <section class="clause" id="s5">
+    <h2>5. Third-Party Content and Third-Party Services</h2>
+    <p class="item"><span class="num">5.1</span><span class="txt">The App may integrate or call third-party libraries, tools, and services. Such components are governed by their respective licenses, terms of service, and privacy policies.</span></p>
+    <p class="item"><span class="num">5.2</span><span class="txt">You must comply with applicable laws and the licensing requirements of Third-Party Components. If third-party terms conflict with this Agreement, the third-party terms shall prevail with respect to the relevant Third-Party Component.</span></p>
+    <p class="item"><span class="num">5.3</span><span class="txt">The project author and contributors are not responsible for any liability arising from or related to third-party content or third-party services. Before using a third-party service, you should read and agree to its terms and privacy policy.</span></p>
+  </section>
+
+  <section class="clause" id="s6">
+    <h2>6. Privacy and Data Protection</h2>
+    <p class="item"><span class="num">6.1</span><span class="txt">The App may process files, paths, network information, or related configurations on your device. The specific methods of collection, use, storage, and sharing are governed by the actual features and the FreeFile Privacy Policy.</span></p>
+    <p class="item"><span class="num">6.2</span><span class="txt">FreeFile's core file management features are primarily processed locally. We will not proactively upload your file contents merely because you install the App. If you use features that require network access, related network requests may include necessary device, network, or log information, as further described in the Privacy Policy.</span></p>
+    <p class="item"><span class="num">6.3</span><span class="txt">You should assess the risks of processing sensitive data yourself, avoid processing or transmitting personal information, confidential information, or legally protected data that you are not authorized to handle, and properly safeguard your device and permission settings.</span></p>
+  </section>
+
+  <section class="clause" id="s7">
+    <h2>7. Intellectual Property</h2>
+    <p class="item"><span class="num">7.1</span><span class="txt">Copyright and other intellectual property rights in the FreeFile project name, source code, documentation, icons, and other content belong to their respective rights holders.</span></p>
+    <p class="item"><span class="num">7.2</span><span class="txt">This Agreement does not grant you any right to use trademarks, trade names, service marks, or branding. Without the written permission of the rights holder, you may not use the FreeFile name for commercial promotion, misleading statements, or to suggest that you have a specific affiliation with us.</span></p>
+    <p class="item"><span class="num">7.3</span><span class="txt">Open-source licenses grant only the rights expressly stated therein. All rights not expressly granted are reserved.</span></p>
+  </section>
+
+  <section class="clause" id="s8">
+    <h2>8. Disclaimer</h2>
+    <p class="item"><span class="num">8.1</span><span class="txt">The project is provided on an "AS IS" and "AS AVAILABLE" basis, without any express or implied warranties, including but not limited to warranties of merchantability, fitness for a particular purpose, non-infringement, accuracy, freedom from errors, or uninterrupted operation.</span></p>
+    <p class="item"><span class="num">8.2</span><span class="txt">We do not guarantee that the App will meet all your requirements or that it will operate without interruption, errors, compatibility issues, or data anomalies.</span></p>
+    <p class="item"><span class="num">8.3</span><span class="txt">To the maximum extent permitted by law, the project author and contributors shall not be liable for any direct, indirect, incidental, special, punitive, or consequential losses arising from the use of or inability to use the software.</span></p>
+  </section>
+
+  <section class="clause" id="s9">
+    <h2>9. Limitation of Liability</h2>
+    <p class="item"><span class="num">9.1</span><span class="txt">To the maximum extent permitted by law, the aggregate liability of the project author and contributors for your use of the App shall not exceed the amount you actually paid to the project author for using the App (if any).</span></p>
+    <p class="item"><span class="num">9.2</span><span class="txt">If applicable law does not allow the limitation or exclusion of certain liabilities, the above limitations shall apply to the extent permitted by such law, and the remaining provisions of this Agreement shall remain unaffected.</span></p>
+    <p class="item"><span class="num">9.3</span><span class="txt">This section does not exclude or limit liabilities that cannot be excluded or limited by law, including liability for personal injury caused by intent or gross negligence.</span></p>
+  </section>
+
+  <section class="clause" id="s10">
+    <h2>10. Changes, Suspension, and Termination</h2>
+    <p class="item"><span class="num">10.1</span><span class="txt">We may update this Agreement based on business needs, legal or regulatory changes, or feature adjustments. Updated versions will be published in the App or on the project page, with the last updated date and effective date indicated.</span></p>
+    <p class="item"><span class="num">10.2</span><span class="txt">If you continue to use the App after an updated Agreement takes effect, you are deemed to have accepted the updated Agreement. If you do not agree to the changes, you should stop using the App and uninstall it.</span></p>
+    <p class="item"><span class="num">10.3</span><span class="txt">If you violate this Agreement or applicable law, we may suspend or terminate your license to use the App.</span></p>
+    <p class="item"><span class="num">10.4</span><span class="txt">Termination of the license does not affect rights and obligations already granted under open-source licenses, nor does it affect provisions that by their nature should survive, including but not limited to disclaimers, limitation of liability, intellectual property, governing law, and dispute resolution provisions.</span></p>
+  </section>
+
+  <section class="clause" id="s11">
+    <h2>11. Governing Law and Dispute Resolution</h2>
+    <p class="item"><span class="num">11.1</span><span class="txt">The formation, validity, interpretation, performance, and dispute resolution of this Agreement shall be governed by the laws of the primary place of operation of the project maintainer, without excluding mandatory rights granted to you by the laws of your country or region.</span></p>
+    <p class="item"><span class="num">11.2</span><span class="txt">Any dispute arising from or related to this Agreement shall first be resolved through friendly negotiation. If negotiation fails, either party may bring a lawsuit before a court with jurisdiction.</span></p>
+  </section>
+
+  <section class="clause" id="s12">
+    <h2>12. Contact</h2>
+    <p class="item"><span class="num">12.1</span><span class="txt">If you have any questions, comments, or suggestions regarding this Agreement or the App, you may submit an Issue at the project repository <a href="https://github.com/MetxStudio/FreeFile" target="_blank" rel="noopener">https://github.com/MetxStudio/FreeFile</a>, or contact the project maintainer.</span></p>
+  </section>
+
+  <section class="clause" id="s13">
+    <h2>13. Acceptance</h2>
+    <p class="item"><span class="num">13.1</span><span class="txt">By clicking "Agree and Continue," you acknowledge that you have read, understood, and agree to this Agreement and the applicable MIT License terms.</span></p>
+    <p class="item"><span class="num">13.2</span><span class="txt">You may choose "Later" to exit this confirmation. This Agreement may be displayed again the next time you launch the App.</span></p>
+    <p class="item"><span class="num">13.3</span><span class="txt">If you do not agree to any part of this Agreement, please stop using the App and uninstall it.</span></p>
+  </section>
+
+  <footer class="doc-foot">
+    <span class="line"></span>
+    FreeFile is an open-source project licensed under the MIT License<br>
+    This Agreement and the MIT License jointly apply to the use of this project<br>
+    © FreeFile Project
+  </footer>
+</div>
+
+<button id="toTop" type="button" aria-label="Back to top">↑</button>
+<script>
+  (function () {
+    var btn = document.getElementById('toTop');
+    function onScroll() {
+      if (window.scrollY > 400) btn.classList.add('show');
+      else btn.classList.remove('show');
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    btn.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    onScroll();
+  })();
+</script>
+</body>
+</html>

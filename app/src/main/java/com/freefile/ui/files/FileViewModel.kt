@@ -6,6 +6,7 @@ import com.freefile.FreeFileApp
 import com.freefile.R
 import com.freefile.data.repo.Repository
 import com.freefile.data.settings.AppSettings
+import com.freefile.operations.FileChangeBus
 import com.freefile.operations.OpKind
 import com.freefile.operations.TransferManager
 import com.freefile.search.IndexState
@@ -268,23 +269,30 @@ class FileViewModel(
                 } else {
                     _ui.update { it.copy(highlightPath = null) }
                 }
+                // 查询书签状态（若用户已切换目录则丢弃本次结果，避免覆盖新目录状态）
+                val bookmarked = repo.hasBookmark(path)
                 _ui.update {
-                    it.copy(
+                    if (it.path != path) it
+                    else it.copy(
                         loading = false,
                         engineId = engine.id,
-                        isBookmarked = repo.hasBookmark(path)
+                        isBookmarked = bookmarked
                     )
                 }
                 repo.recordHistory(path)
             } catch (e: Exception) {
                 allEntries = emptyList()
+                // 即使目录加载失败（如无法访问），仍刷新书签状态，保证按钮显示正确
+                val bookmarked = repo.hasBookmark(path)
                 _ui.update {
-                    it.copy(
+                    if (it.path != path) it
+                    else it.copy(
                         loading = false,
                         error = e.message ?: "N/A",
                         entries = emptyList(),
                         totalCount = 0,
-                        highlightPath = null
+                        highlightPath = null,
+                        isBookmarked = bookmarked
                     )
                 }
             }
@@ -615,6 +623,7 @@ class FileViewModel(
                 else msg(R.string.msg_trash_partial_fail)
             )
             refresh()
+            FileChangeBus.notify(_ui.value.path)
         }
     }
 
@@ -628,6 +637,7 @@ class FileViewModel(
                             else msg(R.string.msg_delete_failed, "")
                         )
                         refresh()
+                        FileChangeBus.notify(_ui.value.path)
                     }
                 }
             } catch (e: Exception) {

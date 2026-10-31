@@ -1,6 +1,15 @@
 package com.freefile
 
+import android.os.Build
 import android.util.Log
+import coil.ImageLoader
+import coil.ImageLoaderFactory
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
+import coil.disk.DiskCache
+import coil.memory.MemoryCache
+import coil.decode.VideoFrameDecoder
+import coil.request.CachePolicy
 import com.freefile.core.permission.PermissionManager
 import com.freefile.data.repo.Repository
 import com.freefile.data.settings.AppSettings
@@ -19,7 +28,36 @@ import kotlinx.coroutines.launch
  *
  * 关键初始化在 onCreate 同步完成，避免子模块首次访问时未就绪导致冷启动崩溃。
  */
-class FreeFileApp : VirtualBoxApp() {
+class FreeFileApp : VirtualBoxApp(), ImageLoaderFactory {
+
+    /**
+     * 全局 Coil ImageLoader：
+     *  - API 28+ 使用 ImageDecoder 支持 GIF / 动态 WebP，低版本回退 GifDecoder
+     *  - 注册 VideoFrameDecoder，支持视频 Uri 首帧缩略图
+     *  - 开启内存与磁盘缓存，供媒体查看器相邻图片预加载复用
+     */
+    override fun newImageLoader(): ImageLoader = ImageLoader.Builder(this)
+        .components {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                add(ImageDecoderDecoder.Factory())
+            } else {
+                add(GifDecoder.Factory())
+            }
+            add(VideoFrameDecoder.Factory())
+        }
+        .memoryCache {
+            MemoryCache.Builder(this).maxSizePercent(0.25).build()
+        }
+        .diskCache {
+            DiskCache.Builder()
+                .directory(cacheDir.resolve("image_cache"))
+                .maxSizePercent(0.02)
+                .build()
+        }
+        .crossfade(true)
+        .memoryCachePolicy(CachePolicy.ENABLED)
+        .diskCachePolicy(CachePolicy.ENABLED)
+        .build()
 
     lateinit var repository: Repository
         private set

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#2f6fed">
+<title>FreeFile Introduction &amp; Help</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#ffffff; --text:#1f2329; --muted:#6b7480;
+    --line:#e6e9ee; --accent:#2f6fed; --accent-soft:#eef3ff;
+    --warn-bg:#fff8e8; --warn-line:#f0c36d;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0e1013; --card:#16191e; --text:#e7eaee; --muted:#98a2b0;
+      --line:#252b33; --accent:#7aa6ff; --accent-soft:#1a2332;
+      --warn-bg:#241f14; --warn-line:#6d5620;
+    }
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+    font-size:16px;line-height:1.75;overflow-wrap:break-word;word-break:break-word;
+  }
+  a{color:var(--accent);text-decoration:none;}
+  .wrap{max-width:820px;margin:0 auto;padding:20px 16px calc(56px + env(safe-area-inset-bottom));}
+  .doc-head{padding:2px 2px 6px;}
+  .doc-head h1{font-size:23px;line-height:1.35;font-weight:700;margin:0 0 6px;letter-spacing:.5px;}
+  .doc-head .sub{margin:0 0 12px;font-size:14px;color:var(--muted);}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;}
+  .meta span{
+    font-size:12px;line-height:1.5;color:var(--accent);background:var(--accent-soft);
+    border-radius:999px;padding:4px 11px;white-space:nowrap;
+  }
+  .notice{
+    margin:18px 0;padding:14px 16px;font-size:14.5px;line-height:1.72;
+    background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:14px;
+  }
+  .toc{
+    margin:18px 0;padding:6px 16px 14px;background:var(--card);
+    border:1px solid var(--line);border-radius:14px;
+  }
+  .toc h2{margin:10px 0 8px;font-size:13px;font-weight:600;letter-spacing:2px;color:var(--muted);}
+  .toc ol{margin:0;padding-left:20px;font-size:14.5px;}
+  .toc li{margin:3px 0;}
+  .toc a{color:var(--text);}
+  section.clause{
+    margin:14px 0;padding:16px 16px 6px;background:var(--card);
+    border:1px solid var(--line);border-radius:14px;scroll-margin-top:16px;
+  }
+  section.clause h2{
+    margin:0 0 12px;padding-left:10px;font-size:16.5px;font-weight:700;
+    line-height:1.45;border-left:4px solid var(--accent);
+  }
+  .item{display:flex;gap:8px;margin:0 0 10px;font-size:15px;}
+  .item .num{flex:0 0 auto;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums;}
+  .item .txt{flex:1 1 auto;}
+  ul.sub{margin:-2px 0 12px;padding-left:38px;font-size:14.5px;}
+  ul.sub li{margin:0 0 6px;}
+  .steps{margin:0 0 12px;padding-left:22px;font-size:14.5px;}
+  .steps li{margin:0 0 8px;}
+  .grid{display:grid;grid-template-columns:1fr;gap:10px;margin:0 0 12px;}
+  .card{
+    padding:12px 14px;background:var(--accent-soft);border:1px solid var(--line);
+    border-radius:12px;font-size:14.5px;
+  }
+  .card b{display:block;margin-bottom:4px;font-size:15px;}
+  .kbd{
+    display:inline-block;padding:1px 7px;border:1px solid var(--line);border-radius:6px;
+    background:var(--bg);font-size:13px;font-family:ui-monospace,Menlo,Consolas,monospace;
+  }
+  .doc-foot{
+    margin-top:26px;padding:16px 8px;text-align:center;font-size:12.5px;
+    line-height:1.8;color:var(--muted);
+  }
+  .doc-foot .line{display:block;width:36px;height:2px;margin:0 auto 12px;background:var(--line);border-radius:2px;}
+  #toTop{
+    position:fixed;right:16px;bottom:calc(20px + env(safe-area-inset-bottom));
+    width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+    font-size:17px;color:var(--accent);background:var(--card);
+    border:1px solid var(--line);border-radius:50%;
+    box-shadow:0 4px 14px rgba(0,0,0,.14);cursor:pointer;opacity:0;
+    pointer-events:none;transform:translateY(8px);
+    transition:opacity .2s ease, transform .2s ease;-webkit-tap-highlight-color:transparent;
+  }
+  #toTop.show{opacity:1;pointer-events:auto;transform:none;}
+  #toTop:active{transform:scale(.94);}
+  @media (min-width:600px){
+    body{font-size:16.5px;} .doc-head h1{font-size:27px;}
+    section.clause{padding:20px 22px 8px;} .item{font-size:15.5px;}
+    .grid{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="doc-head">
+    <h1>FreeFile Introduction &amp; Help</h1>
+    <p class="sub">Dual-pane file management · privileged access · network storage · terminal &amp; scripting · archives and reverse-engineering tools</p>
+    <div class="meta">
+      <span>Version: v1.0</span>
+      <span>Updated: 2026-10-30</span>
+      <span>Requires Android 7.0+</span>
+      <span>Open source · MIT License</span>
+    </div>
+  </header>
+
+  <div class="notice">
+    <strong>Note:</strong> FreeFile is designed for advanced users who need efficient file operations. Root / Shizuku access,
+    deleting system files, LAN sharing, and third-party tool integration carry risks. Please read this guide and the
+    User Agreement, and make sure you understand the consequences before proceeding.
+  </div>
+
+  <nav class="toc" aria-label="Contents">
+    <h2>CONTENTS</h2>
+    <ol>
+      <li><a href="#s1">Introduction</a></li>
+      <li><a href="#s2">Getting Started</a></li>
+      <li><a href="#s3">File Management</a></li>
+      <li><a href="#s4">Search &amp; Indexing</a></li>
+      <li><a href="#s5">Compression &amp; Extraction</a></li>
+      <li><a href="#s6">File Encryption &amp; Decryption</a></li>
+      <li><a href="#s7">Network Storage &amp; LAN Sharing</a></li>
+      <li><a href="#s8">Terminal &amp; Script Engine</a></li>
+      <li><a href="#s9">Text &amp; Rich Text Editing</a></li>
+      <li><a href="#s10">Reverse-Engineering Tools</a></li>
+      <li><a href="#s11">Browser, Media &amp; Document Viewers</a></li>
+      <li><a href="#s12">AI File Management Assistant</a></li>
+      <li><a href="#s13">FAQ</a></li>
+      <li><a href="#s14">Feedback &amp; Support</a></li>
+    </ol>
+  </nav>
+
+  <section class="clause" id="s1">
+    <h2>1. Introduction</h2>
+    <p class="item"><span class="num">1.1</span><span class="txt">FreeFile is an Android dual-pane file manager built with Kotlin and Jetpack Compose. It combines local, Root and Shizuku file access with network storage, a terminal, scripting, archive handling, encryption, and reverse-engineering tools.</span></p>
+    <p class="item"><span class="num">1.2</span><span class="txt">A unified Virtual File System (VFS) abstraction lets the same copy, move, rename, and delete operations run on local scoped storage, Root Shell, Shizuku, inside archives, and on remote locations such as SMB, FTP, WebDAV, and S3.</span></p>
+    <p class="item"><span class="num">1.3</span><span class="txt">The goal is to deliver desktop-class file management efficiency on a phone while keeping the interface clear, operations predictable, and destructive actions guarded by confirmation and undo.</span></p>
+  </section>
+
+  <section class="clause" id="s2">
+    <h2>2. Getting Started</h2>
+    <p class="item"><span class="num">2.1</span><span class="txt">On first launch, a feature dialog lets you read the User Agreement, Privacy Policy, this Help document, and the About page. Tap “Agree and continue” to enter the main interface.</span></p>
+    <p class="item"><span class="num">2.2</span><span class="txt">Recommended setup order:</span></p>
+    <ol class="steps">
+      <li>Grant “All files access” (on Android 11 and later this must be enabled manually in system settings) for shared-storage browsing and modification.</li>
+      <li>To access protected directories such as <span class="kbd">/data</span> and <span class="kbd">/system</span>, install and authorize Shizuku, or configure Root on your device.</li>
+      <li>Open Settings to review the access-engine priority, file-size calculation, language, and search-index options.</li>
+    </ol>
+    <p class="item"><span class="num">2.3</span><span class="txt">The main screen uses a left and right pane, each with multiple tabs. Touch a pane to make it active; bottom-toolbar actions such as copy, paste, and delete apply only to the active pane.</span></p>
+    <p class="item"><span class="num">2.4</span><span class="txt">The right pane can be temporarily hidden or shown from the top bar, making it easy to switch between single-pane and dual-pane layouts. The two panes can also be swapped with one tap.</span></p>
+  </section>
+
+  <section class="clause" id="s3">
+    <h2>3. File Management</h2>
+    <div class="grid">
+      <div class="card"><b>Dual pane &amp; tabs</b>Both panes browse independently; tab sessions persist and restore your last location after a restart.</div>
+      <div class="card"><b>Complete operations</b>Create (including multi-level paths like <span class="kbd">a/b/c</span>), copy, cut, paste, rename, batch rename, and delete.</div>
+      <div class="card"><b>Recycle bin</b>Deleted items go to the recycle bin by default and can be restored or purged; permanent deletion is available after confirmation.</div>
+      <div class="card"><b>Multi-select</b>Select all, invert selection, or range-select by long press, then batch-process from the action panel.</div>
+      <div class="card"><b>Properties</b>View path, size, timestamps, and permissions; compute directory sizes and persistently display MD5 / SHA-256 for files.</div>
+      <div class="card"><b>Navigation aids</b>Breadcrumbs, jump-to-path, bookmarks, recent folders, recent files; every list has a fixed <span class="kbd">..</span> entry for the parent directory.</div>
+      <div class="card"><b>Three views</b>List, grid, and large-icon views with sorting by name, size, type, or time, ascending or descending.</div>
+      <div class="card"><b>Fine-grained filters</b>Filter by folders, images, videos, audio, archives, documents, code, APKs, and more, with a hidden-files toggle.</div>
+    </div>
+    <p class="item"><span class="num">3.1</span><span class="txt">When copying, moving, or extracting encounters a name conflict, choose “Overwrite / Skip / Keep both” and apply the choice to the whole batch to avoid repeated prompts.</span></p>
+    <p class="item"><span class="num">3.2</span><span class="txt">File-size calculation is disabled by default to keep large directories fast. Enable it in Settings, or compute a directory size manually from the properties panel when needed.</span></p>
+    <p class="item"><span class="num">3.3</span><span class="txt">The access engine automatically probes in the order <strong>Root &gt; Shizuku &gt; local scoped storage</strong> and remembers the mapping from path prefix to engine. You can also force “Auto / Root first / Shizuku first / Local only” in Settings.</span></p>
+  </section>
+
+  <section class="clause" id="s4">
+    <h2>4. Search &amp; Indexing</h2>
+    <p class="item"><span class="num">4.1</span><span class="txt">Search supports configurable recursion depth (current folder, a specified number of levels, or unlimited), plus wildcards <span class="kbd">*</span> <span class="kbd">?</span>, regular expressions, exact match, and case sensitivity.</span></p>
+    <p class="item"><span class="num">4.2</span><span class="txt">Combine size, modification-time, and content filters, then jump to a result's folder or run batch actions directly from the results.</span></p>
+    <p class="item"><span class="num">4.3</span><span class="txt">With “Search index cache” enabled, the app builds an index in the background for near-instant repeated searches. The index can be disabled, cleared, or rebuilt in Settings. It is stored only on your device and never uploaded.</span></p>
+  </section>
+
+  <section class="clause" id="s5">
+    <h2>5. Compression &amp; Extraction</h2>
+    <p class="item"><span class="num">5.1</span><span class="txt">Supported formats: <span class="kbd">zip</span>, <span class="kbd">jar</span>, <span class="kbd">apk</span>, <span class="kbd">7z</span>, <span class="kbd">tar</span>, <span class="kbd">tar.gz</span>, <span class="kbd">tgz</span>, <span class="kbd">tar.bz2</span>, <span class="kbd">tar.xz</span>, <span class="kbd">rar4</span>, <span class="kbd">rar5</span>, <span class="kbd">gz</span>, <span class="kbd">bz2</span>, and <span class="kbd">xz</span>.</span></p>
+    <p class="item"><span class="num">5.2</span><span class="txt">Browse inside archives without extracting: the <span class="kbd">xxx.zip#/internal/path</span> syntax maps an archive's internal folders so you can view, copy, or extract individual files as if they were ordinary directories.</span></p>
+    <p class="item"><span class="num">5.3</span><span class="txt">Encrypted ZIP files prompt for a password during extraction; a wrong password or damaged archive produces a clear error and no incorrect output. Archive passwords and the separate “File encryption” password are independent.</span></p>
+    <p class="item"><span class="num">5.4</span><span class="txt">When compressing, choose the target format and compression level. ZIP additionally supports a password and split-volume size in MB (0 means no splitting). The destination file extension follows the selected format automatically.</span></p>
+    <p class="item"><span class="num">5.5</span><span class="txt">Large compression or extraction jobs run as background tasks with progress reporting and can jump to the output folder when finished.</span></p>
+  </section>
+
+  <section class="clause" id="s6">
+    <h2>6. File Encryption &amp; Decryption</h2>
+    <p class="item"><span class="num">6.1</span><span class="txt">Encryption protects a single file and produces an <span class="kbd">originalname.cry</span> file. To restore the original name and contents, select the <span class="kbd">.cry</span> file and enter the password.</span></p>
+    <p class="item"><span class="num">6.2</span><span class="txt">Encryption is streamed to avoid loading large files into memory. The password is used only to derive the key and is never stored in any form.</span></p>
+    <p class="item"><span class="num">6.3</span><span class="txt">If the password is wrong or the file has been modified, authentication fails and no plaintext is produced. Keep your password safe; it cannot be recovered if lost.</span></p>
+    <p class="item"><span class="num">6.4</span><span class="txt">You may delete the source file after encryption. If system permissions prevent deletion, the app will ask you to remove it manually.</span></p>
+  </section>
+
+  <section class="clause" id="s7">
+    <h2>7. Network Storage &amp; LAN Sharing</h2>
+    <p class="item"><span class="num">7.1</span><span class="txt">Supports WebDAV, FTP, SMB2/3, and S3 (compatible with endpoints such as Alibaba OSS), all using the <span class="kbd">remote://</span> path syntax. Locations can be saved and edited with SSL, domain, bucket, and custom endpoint options.</span></p>
+    <p class="item"><span class="num">7.2</span><span class="txt">LAN sharing uses NanoHTTPD and mDNS to discover nearby devices and transfer files without mobile data, with a record of received files.</span></p>
+    <p class="item"><span class="num">7.3</span><span class="txt">Enable sharing only on trusted private networks. Do not expose the service on public Wi-Fi, and never share remote-storage credentials with others.</span></p>
+  </section>
+
+  <section class="clause" id="s8">
+    <h2>8. Terminal &amp; Script Engine</h2>
+    <p class="item"><span class="num">8.1</span><span class="txt">The terminal is built on Termux terminal-emulator with a real PTY and VT100 support. It offers multiple sessions, normal and Root modes, and a customizable interpreter path such as <span class="kbd">/system/bin/bash</span>.</span></p>
+    <p class="item"><span class="num">8.2</span><span class="txt">Opening the terminal from a file list can automatically change to the target directory and list the selected files. The terminal runs in its own task stack so you can switch freely with the file UI.</span></p>
+    <p class="item"><span class="num">8.3</span><span class="txt">The script engine includes Lua (LuaJ) and can invoke a Python interpreter installed on the device. File APIs include <span class="kbd">freefile.list / read / write / copy / delete / mkdir / rename / exists / log</span>.</span></p>
+    <p class="item"><span class="num">8.4</span><span class="txt">Built-in sample scripts cover listing directories, storage information, finding large files, batch-rename previews, directory-size calculation, and removing empty folders, and serve as references for your own scripts.</span></p>
+  </section>
+
+  <section class="clause" id="s9">
+    <h2>9. Text &amp; Rich Text Editing</h2>
+    <p class="item"><span class="num">9.1</span><span class="txt">The text editor supports search, replace, replace-all, regex, whole-word matching, case sensitivity, line numbers, jump-to-line, font-size adjustment, and multiple encodings.</span></p>
+    <p class="item"><span class="num">9.2</span><span class="txt">Files larger than 1 MB enter a “large-file smooth mode” with truncated loading to avoid lag. For full editing, consider processing the file on a computer or splitting it first.</span></p>
+    <p class="item"><span class="num">9.3</span><span class="txt">The rich text editor supports HTML, Markdown, and plain text with format conversion and hyperlink insertion.</span></p>
+  </section>
+
+  <section class="clause" id="s10">
+    <h2>10. Reverse-Engineering Tools</h2>
+    <p class="item"><span class="num">10.1</span><span class="txt">The “Tool Tray” includes APK tools (Acode, APKToolM). It can pass the current file directly to a tool and follow an “extract → install → launch” workflow.</span></p>
+    <p class="item"><span class="num">10.2</span><span class="txt">The “APK Launcher” parses the package name, launcher activity, and version of an uninstalled APK, and lets you customize the launch Intent (Action, Category, Data, Extras, and window flags).</span></p>
+    <p class="item"><span class="num">10.3</span><span class="txt">“VirtualBox run-without-install” uses a virtual app container (Bcore) to import and run an APK without installing it into the system.</span></p>
+    <p class="item"><span class="num">10.4</span><span class="txt">These tools are intended only for study, personal file processing, and analysis of apps you own. Comply with local laws and the target software's license. Do not use them to crack, tamper with, or infringe on others' rights.</span></p>
+  </section>
+
+  <section class="clause" id="s11">
+    <h2>11. Browser, Media &amp; Document Viewers</h2>
+    <p class="item"><span class="num">11.1</span><span class="txt">The built-in browser supports tabs, an address bar, search, bookmarks, and in-page downloads. Uploads triggered by a page accept any file type and multiple selection. HTTP downloads go to the system downloader, while blob / data links are saved through an in-app bridge, with real-time progress shown at the bottom of the page.</span></p>
+    <p class="item"><span class="num">11.2</span><span class="txt">Images support pinch-to-zoom, double-tap zoom, and panning. Video and audio use Media3 ExoPlayer, and media files can be swiped left and right within the same viewer.</span></p>
+    <p class="item"><span class="num">11.3</span><span class="txt">The PDF viewer provides page jumping, zooming, sharing, and file details. If a file is deleted in a viewer, the result is returned to the main screen and the current folder refreshes.</span></p>
+  </section>
+
+  <section class="clause" id="s12">
+    <h2>12. AI File Management Assistant</h2>
+    <p class="item"><span class="num">12.1</span><span class="txt">The “File Management Agent” in the side drawer provides natural-language-driven file operations and Q&amp;A. All file facts come from tool calls; the model does not invent file contents.</span></p>
+    <p class="item"><span class="num">12.2</span><span class="txt">Every write operation follows a “preview → confirm → execute → undo” cycle, and batches over 10 files require a summarized confirmation. Specific actions can be pre-authorized in Settings.</span></p>
+    <p class="item"><span class="num">12.3</span><span class="txt">Multiple sessions and tabs, conversation persistence, renaming, and an independent context per conversation are supported. Third-party MCP servers can be connected, and HTTP request logs can be recorded.</span></p>
+    <p class="item"><span class="num">12.4</span><span class="txt">Sensitive directories, vaults, and encrypted containers are not indexed or auto-scanned by default. AI-generated content saved as a file also goes through the standard write-confirmation flow.</span></p>
+  </section>
+
+  <section class="clause" id="s13">
+    <h2>13. FAQ</h2>
+    <p class="item"><span class="num">Q1</span><span class="txt"><strong>Why can't I see Android/data or obb?</strong><br>Make sure “All files access” is granted and the access engine is set to Auto, Root, or Shizuku. With ordinary scoped storage on Android 11 and later, some system directories are not directly accessible.</span></p>
+    <p class="item"><span class="num">Q2</span><span class="txt"><strong>Shizuku is installed but still shows no permission.</strong><br>Start the Shizuku service in the Shizuku app and authorize FreeFile. On some devices, Shizuku must be restarted after every reboot.</span></p>
+    <p class="item"><span class="num">Q3</span><span class="txt"><strong>Folders open slowly or size shows “—”.</strong><br>File-size calculation is off by default. Enable it in Settings, or use the properties panel only for folders you need to measure to avoid scanning very large trees.</span></p>
+    <p class="item"><span class="num">Q4</span><span class="txt"><strong>The archive reports a wrong password.</strong><br>Confirm the archive is actually encrypted and that the password's case and characters match exactly. The app's file-encryption password is unrelated to ZIP archive passwords.</span></p>
+    <p class="item"><span class="num">Q5</span><span class="txt"><strong>Where did deleted files go?</strong><br>By default they go to the recycle bin, reachable from the side drawer, where you can restore or purge them. Permanently deleted files cannot be recovered through the app.</span></p>
+    <p class="item"><span class="num">Q6</span><span class="txt"><strong>The terminal shows no output or the keyboard misbehaves.</strong><br>Make sure the session was created and has not been reclaimed by the system. Try a new session, switch between normal and Root modes, or change the interpreter path in Settings.</span></p>
+    <p class="item"><span class="num">Q7</span><span class="txt"><strong>How do I change the language?</strong><br>Go to Settings → Language and choose Simplified Chinese or English; the change takes effect immediately. Documents in the Gallery can also switch between Chinese and English independently.</span></p>
+    <p class="item"><span class="num">Q8</span><span class="txt"><strong>Why isn't a web download in the Downloads folder?</strong><br>HTTP downloads are saved by the system downloader to the public Downloads folder; blob / data content is written to Downloads by the app. Under scoped storage, files may instead be placed in the app-specific external directory.</span></p>
+  </section>
+
+  <section class="clause" id="s14">
+    <h2>14. Feedback &amp; Support</h2>
+    <p class="item"><span class="num">14.1</span><span class="txt">FreeFile is open source. The source code and issue tracker are at <a href="https://github.com/MetxStudio/FreeFile" target="_blank" rel="noopener">github.com/MetxStudio/FreeFile</a>.</span></p>
+    <p class="item"><span class="num">14.2</span><span class="txt">When reporting a problem, include your device model, Android version, app version, reproduction steps, and screenshots. Never paste private file contents or account credentials into a public issue.</span></p>
+    <p class="item"><span class="num">14.3</span><span class="txt">Please also read the User Agreement and Privacy Policy. This Help document explains features only and does not guarantee the outcome of any operation.</span></p>
+  </section>
+
+  <footer class="doc-foot">
+    <span class="line"></span>
+    FreeFile is an open-source project licensed under the MIT License<br>
+    This Help document is updated with releases; the in-app version always prevails<br>
+    © FreeFile Project
+  </footer>
+</div>
+
+<button id="toTop" type="button" aria-label="Back to top">↑</button>
+<script>
+  (function () {
+    var btn = document.getElementById('toTop');
+    function onScroll() {
+      if (window.scrollY > 400) btn.classList.add('show');
+      else btn.classList.remove('show');
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    btn.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    onScroll();
+  })();
+</script>
+</body>
+</html>

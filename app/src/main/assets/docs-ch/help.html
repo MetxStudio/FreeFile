@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#2f6fed">
+<title>FreeFile 应用介绍与帮助文档</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#ffffff; --text:#1f2329; --muted:#6b7480;
+    --line:#e6e9ee; --accent:#2f6fed; --accent-soft:#eef3ff;
+    --warn-bg:#fff8e8; --warn-line:#f0c36d;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0e1013; --card:#16191e; --text:#e7eaee; --muted:#98a2b0;
+      --line:#252b33; --accent:#7aa6ff; --accent-soft:#1a2332;
+      --warn-bg:#241f14; --warn-line:#6d5620;
+    }
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",
+      "Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+    font-size:16px;line-height:1.75;overflow-wrap:break-word;word-break:break-word;
+  }
+  a{color:var(--accent);text-decoration:none;}
+  .wrap{max-width:820px;margin:0 auto;padding:20px 16px calc(56px + env(safe-area-inset-bottom));}
+  .doc-head{padding:2px 2px 6px;}
+  .doc-head h1{font-size:23px;line-height:1.35;font-weight:700;margin:0 0 6px;letter-spacing:.5px;}
+  .doc-head .sub{margin:0 0 12px;font-size:14px;color:var(--muted);}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;}
+  .meta span{
+    font-size:12px;line-height:1.5;color:var(--accent);background:var(--accent-soft);
+    border-radius:999px;padding:4px 11px;white-space:nowrap;
+  }
+  .notice{
+    margin:18px 0;padding:14px 16px;font-size:14.5px;line-height:1.72;
+    background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:14px;
+  }
+  .toc{
+    margin:18px 0;padding:6px 16px 14px;background:var(--card);
+    border:1px solid var(--line);border-radius:14px;
+  }
+  .toc h2{margin:10px 0 8px;font-size:13px;font-weight:600;letter-spacing:2px;color:var(--muted);}
+  .toc ol{margin:0;padding-left:20px;font-size:14.5px;}
+  .toc li{margin:3px 0;}
+  .toc a{color:var(--text);}
+  section.clause{
+    margin:14px 0;padding:16px 16px 6px;background:var(--card);
+    border:1px solid var(--line);border-radius:14px;scroll-margin-top:16px;
+  }
+  section.clause h2{
+    margin:0 0 12px;padding-left:10px;font-size:16.5px;font-weight:700;
+    line-height:1.45;border-left:4px solid var(--accent);
+  }
+  .item{display:flex;gap:8px;margin:0 0 10px;font-size:15px;}
+  .item .num{flex:0 0 auto;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums;}
+  .item .txt{flex:1 1 auto;}
+  ul.sub{margin:-2px 0 12px;padding-left:38px;font-size:14.5px;}
+  ul.sub li{margin:0 0 6px;}
+  .steps{margin:0 0 12px;padding-left:22px;font-size:14.5px;}
+  .steps li{margin:0 0 8px;}
+  .grid{display:grid;grid-template-columns:1fr;gap:10px;margin:0 0 12px;}
+  .card{
+    padding:12px 14px;background:var(--accent-soft);border:1px solid var(--line);
+    border-radius:12px;font-size:14.5px;
+  }
+  .card b{display:block;margin-bottom:4px;font-size:15px;}
+  .kbd{
+    display:inline-block;padding:1px 7px;border:1px solid var(--line);border-radius:6px;
+    background:var(--bg);font-size:13px;font-family:ui-monospace,Menlo,Consolas,monospace;
+  }
+  .doc-foot{
+    margin-top:26px;padding:16px 8px;text-align:center;font-size:12.5px;
+    line-height:1.8;color:var(--muted);
+  }
+  .doc-foot .line{display:block;width:36px;height:2px;margin:0 auto 12px;background:var(--line);border-radius:2px;}
+  #toTop{
+    position:fixed;right:16px;bottom:calc(20px + env(safe-area-inset-bottom));
+    width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+    font-size:17px;color:var(--accent);background:var(--card);
+    border:1px solid var(--line);border-radius:50%;
+    box-shadow:0 4px 14px rgba(0,0,0,.14);cursor:pointer;opacity:0;
+    pointer-events:none;transform:translateY(8px);
+    transition:opacity .2s ease, transform .2s ease;-webkit-tap-highlight-color:transparent;
+  }
+  #toTop.show{opacity:1;pointer-events:auto;transform:none;}
+  #toTop:active{transform:scale(.94);}
+  @media (min-width:600px){
+    body{font-size:16.5px;} .doc-head h1{font-size:27px;}
+    section.clause{padding:20px 22px 8px;} .item{font-size:15.5px;}
+    .grid{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="doc-head">
+    <h1>FreeFile 应用介绍与帮助文档</h1>
+    <p class="sub">双窗格文件管理 · 高权限访问 · 网络存储 · 终端与脚本 · 压缩与逆向工具</p>
+    <div class="meta">
+      <span>版本：v1.0</span>
+      <span>更新日期：2026-10-30</span>
+      <span>适用平台：Android 7.0 及以上</span>
+      <span>开源 · MIT License</span>
+    </div>
+  </header>
+
+  <div class="notice">
+    <strong>提示：</strong>FreeFile 面向需要高效率文件操作的进阶用户。Root / Shizuku、删除系统文件、
+    局域网来访、第三方工具调用等能力具有一定风险，请先阅读本帮助与《用户协议》，
+    并在充分了解操作后果后再使用。
+  </div>
+
+  <nav class="toc" aria-label="目录">
+    <h2>目 录</h2>
+    <ol>
+      <li><a href="#s1">应用简介</a></li>
+      <li><a href="#s2">开始使用</a></li>
+      <li><a href="#s3">文件管理</a></li>
+      <li><a href="#s4">搜索与索引</a></li>
+      <li><a href="#s5">压缩与解压</a></li>
+      <li><a href="#s6">文件加密与解密</a></li>
+      <li><a href="#s7">网络存储与局域网快传</a></li>
+      <li><a href="#s8">内置终端与脚本引擎</a></li>
+      <li><a href="#s9">文本与富文本编辑</a></li>
+      <li><a href="#s10">逆向工具集</a></li>
+      <li><a href="#s11">内置浏览器、媒体与文档查看</a></li>
+      <li><a href="#s12">AI 文件管理助手</a></li>
+      <li><a href="#s13">常见问题 FAQ</a></li>
+      <li><a href="#s14">反馈与支持</a></li>
+    </ol>
+  </nav>
+
+  <section class="clause" id="s1">
+    <h2>一、应用简介</h2>
+    <p class="item"><span class="num">1.1</span><span class="txt">FreeFile（全能文件大师）是一款基于 Kotlin 与 Jetpack Compose 构建的 Android 双窗格文件管理器，集本地 / Root / Shizuku 文件访问、网络存储、终端、脚本、压缩解压、加密与逆向工具于一体。</span></p>
+    <p class="item"><span class="num">1.2</span><span class="txt">应用通过统一的虚拟文件系统（VFS）抽象层，让同一套复制、移动、重命名、删除等操作可以运行在本地分区存储、Root Shell、Shizuku、压缩包内部以及 SMB / FTP / WebDAV / S3 等远程位置。</span></p>
+    <p class="item"><span class="num">1.3</span><span class="txt">设计目标：在手机上提供接近桌面文件管理器的效率，同时保持界面清晰、操作可预期、危险操作有确认与撤销。</span></p>
+  </section>
+
+  <section class="clause" id="s2">
+    <h2>二、开始使用</h2>
+    <p class="item"><span class="num">2.1</span><span class="txt">首次启动会展示功能弹窗，其中可阅读用户协议、隐私政策、本帮助与关于页面。点击“同意并继续”后进入主界面。</span></p>
+    <p class="item"><span class="num">2.2</span><span class="txt">建议按以下顺序完成初始化：</span></p>
+    <ol class="steps">
+      <li>授予“所有文件访问权限”（Android 11 及以上需在系统设置中手动开启），用于浏览和修改共享存储。</li>
+      <li>如需访问 <span class="kbd">/data</span>、<span class="kbd">/system</span> 等受保护目录，可安装并授权 Shizuku，或为设备配置 Root。</li>
+      <li>进入“设置”检查访问引擎优先级、文件大小计算、多语言、搜索索引等选项。</li>
+    </ol>
+    <p class="item"><span class="num">2.3</span><span class="txt">主界面为左右双窗格布局，每个窗格可打开多个标签页。触摸某个窗格即将其设为“活动窗格”，底部工具栏的复制、粘贴、删除等操作只作用于活动窗格。</span></p>
+    <p class="item"><span class="num">2.4</span><span class="txt">右侧窗格可通过顶部按钮临时隐藏或显示，便于在单窗格与双窗格之间快速切换；两个窗格也可一键交换位置。</span></p>
+  </section>
+
+  <section class="clause" id="s3">
+    <h2>三、文件管理</h2>
+    <div class="grid">
+      <div class="card"><b>双窗格与多标签</b>左右窗格独立浏览，标签会话可持久化，重启应用后恢复上次位置。</div>
+      <div class="card"><b>完整文件操作</b>新建（支持 <span class="kbd">a/b/c</span> 多级目录）、复制、剪切、粘贴、重命名、批量重命名与删除。</div>
+      <div class="card"><b>回收站</b>删除默认先进入回收站，可恢复或清空；也可在确认后永久删除。</div>
+      <div class="card"><b>多选体系</b>全选、反选、长按区间选择，配合操作面板批量处理。</div>
+      <div class="card"><b>属性面板</b>查看路径、大小、时间、权限；目录可统计大小，文件可计算并持久展示 MD5 / SHA-256。</div>
+      <div class="card"><b>导航辅助</b>面包屑、路径跳转、书签、最近目录、最近文件；每个列表固定提供 <span class="kbd">..</span> 返回上级。</div>
+      <div class="card"><b>三种视图</b>列表 / 网格 / 大图标，支持按名称、大小、类型、时间排序并切换升降序。</div>
+      <div class="card"><b>细粒度过滤</b>按文件夹、图片、视频、音频、压缩包、文档、代码、APK 等分类筛选，并可开关隐藏文件。</div>
+    </div>
+    <p class="item"><span class="num">3.1</span><span class="txt">复制、移动、解压遇到同名文件时，会提供“覆盖 / 跳过 / 保留两者”策略，并可选择批量应用，避免逐个确认。</span></p>
+    <p class="item"><span class="num">3.2</span><span class="txt">文件大小计算默认关闭，以加快大目录的浏览速度；需要查看目录占用时可在设置中开启，或在属性面板中手动统计。</span></p>
+    <p class="item"><span class="num">3.3</span><span class="txt">访问引擎默认按 <strong>Root &gt; Shizuku &gt; 本地分区存储</strong> 的优先级自动探测，并会记忆“路径前缀 → 引擎”的映射。也可以在设置中手动指定“自动 / Root 优先 / Shizuku 优先 / 仅本地”。</span></p>
+  </section>
+
+  <section class="clause" id="s4">
+    <h2>四、搜索与索引</h2>
+    <p class="item"><span class="num">4.1</span><span class="txt">搜索支持配置递归深度：仅当前目录、指定层数或无限递归；支持通配符 <span class="kbd">*</span> <span class="kbd">?</span>、正则表达式、完全匹配与区分大小写。</span></p>
+    <p class="item"><span class="num">4.2</span><span class="txt">可结合文件大小、修改时间与文件内容条件进行筛选，结果可直接进入所在目录或执行批量操作。</span></p>
+    <p class="item"><span class="num">4.3</span><span class="txt">开启“搜索索引缓存”后，应用会在后台建立索引，实现接近秒级的重复搜索；索引可在设置中随时关闭、清理或重建。索引仅保存在本机，不会上传。</span></p>
+  </section>
+
+  <section class="clause" id="s5">
+    <h2>五、压缩与解压</h2>
+    <p class="item"><span class="num">5.1</span><span class="txt">支持格式：<span class="kbd">zip</span>、<span class="kbd">jar</span>、<span class="kbd">apk</span>、<span class="kbd">7z</span>、<span class="kbd">tar</span>、<span class="kbd">tar.gz</span>、<span class="kbd">tgz</span>、<span class="kbd">tar.bz2</span>、<span class="kbd">tar.xz</span>、<span class="kbd">rar4</span>、<span class="kbd">rar5</span>、<span class="kbd">gz</span>、<span class="kbd">bz2</span>、<span class="kbd">xz</span>。</span></p>
+    <p class="item"><span class="num">5.2</span><span class="txt">无需解压即可浏览压缩包内部：使用 <span class="kbd">xxx.zip#/内部路径</span> 语法映射包内目录，像普通文件夹一样查看、复制或提取单个文件。</span></p>
+    <p class="item"><span class="num">5.3</span><span class="txt">加密 ZIP 解压时会要求输入密码；密码错误或文件损坏会给出明确提示，不会输出错误内容。压缩包密码与“文件加密”功能的密码相互独立。</span></p>
+    <p class="item"><span class="num">5.4</span><span class="txt">压缩时可选择目标格式与压缩级别；ZIP 格式额外支持设置密码与分卷大小（单位 MB，填 0 表示不分卷）。切换格式时目标文件扩展名会自动同步。</span></p>
+    <p class="item"><span class="num">5.5</span><span class="txt">大文件压缩 / 解压会在后台任务中执行并显示进度，完成后可直接跳转到输出目录。</span></p>
+  </section>
+
+  <section class="clause" id="s6">
+    <h2>六、文件加密与解密</h2>
+    <p class="item"><span class="num">6.1</span><span class="txt">加密功能针对单个文件进行高强度保护，生成 <span class="kbd">原文件名.cry</span> 文件；解密时选择 <span class="kbd">.cry</span> 文件并输入密码即可还原原始文件名与内容。</span></p>
+    <p class="item"><span class="num">6.2</span><span class="txt">加密采用流式处理，避免一次性读取大文件造成内存溢出；密码仅用于派生密钥，不会以任何形式存储。</span></p>
+    <p class="item"><span class="num">6.3</span><span class="txt">密码错误或文件被篡改时，认证校验会失败，应用不会输出任何明文；请务必自行保管密码，密码丢失后无法恢复。</span></p>
+    <p class="item"><span class="num">6.4</span><span class="txt">加密完成后可选择删除源文件；受系统权限限制删除失败时，会提示您手动处理。</span></p>
+  </section>
+
+  <section class="clause" id="s7">
+    <h2>七、网络存储与局域网快传</h2>
+    <p class="item"><span class="num">7.1</span><span class="txt">支持 WebDAV、FTP、SMB2/3、S3（兼容阿里 OSS 等 S3 协议端点），统一使用 <span class="kbd">remote://</span> 路径语法。网络位置可保存、编辑，并支持 SSL、域、Bucket、自定义 Endpoint 等配置。</span></p>
+    <p class="item"><span class="num">7.2</span><span class="txt">“局域网快传”基于 NanoHTTPD 与 mDNS 自动发现附近设备，无需数据流量即可互传文件，并保留接收记录。</span></p>
+    <p class="item"><span class="num">7.3</span><span class="txt">建议仅在可信的私有网络中开启快传；不要在公共 Wi-Fi 下开放服务，也不要将远程存储的账号密码告知他人。</span></p>
+  </section>
+
+  <section class="clause" id="s8">
+    <h2>八、内置终端与脚本引擎</h2>
+    <p class="item"><span class="num">8.1</span><span class="txt">终端基于 Termux terminal-emulator 实现真 PTY + VT100，支持多标签会话、普通 / Root 模式以及自定义解释器路径（如 <span class="kbd">/system/bin/bash</span>）。</span></p>
+    <p class="item"><span class="num">8.2</span><span class="txt">从文件列表打开终端时，可自动切换到目标目录并列出选中文件；终端运行于独立任务栈，可与文件界面自由切换。</span></p>
+    <p class="item"><span class="num">8.3</span><span class="txt">脚本引擎内置 Lua（LuaJ），并支持调用设备上的 Python 解释器。提供 <span class="kbd">freefile.list / read / write / copy / delete / mkdir / rename / exists / log</span> 等文件 API。</span></p>
+    <p class="item"><span class="num">8.4</span><span class="txt">内置常用脚本包括列目录、存储信息、查找大文件、批量重命名预览、目录大小统计、删除空目录等，可作为编写自定义脚本的参考。</span></p>
+  </section>
+
+  <section class="clause" id="s9">
+    <h2>九、文本与富文本编辑</h2>
+    <p class="item"><span class="num">9.1</span><span class="txt">文本编辑器支持搜索 / 替换 / 全部替换、正则、全词匹配、区分大小写、行号、跳转指定行、字号调节与多编码打开。</span></p>
+    <p class="item"><span class="num">9.2</span><span class="txt">超过 1 MB 的文件会自动进入“大文件流畅模式”并截断加载，避免编辑卡顿；如需完整编辑，建议在电脑上处理或先拆分文件。</span></p>
+    <p class="item"><span class="num">9.3</span><span class="txt">富文本编辑器支持 HTML / Markdown / 纯文本的编辑与格式互转，并可插入超链接。</span></p>
+  </section>
+
+  <section class="clause" id="s10">
+    <h2>十、逆向工具集</h2>
+    <p class="item"><span class="num">10.1</span><span class="txt">“工具托盘”内置 APK 工具（Acode、APKToolM），可将当前文件直接传给工具，并按“解压 → 安装 → 启动”的流程处理。</span></p>
+    <p class="item"><span class="num">10.2</span><span class="txt">“APK 启动器”可解析未安装 APK 的包名、入口 Activity 与版本，并允许自定义启动 Intent（Action、Category、Data、Extras、窗口 Flags）。</span></p>
+    <p class="item"><span class="num">10.3</span><span class="txt">“VirtualBox 免安装运行”基于虚拟应用容器（Bcore），可将 APK 导入虚拟环境运行，无需安装到系统。</span></p>
+    <p class="item"><span class="num">10.4</span><span class="txt">逆向工具仅用于学习研究、个人文件处理及对自有应用的分析。请遵守当地法律法规与目标软件的许可协议，不要用于破解、篡改或侵犯他人权益。</span></p>
+  </section>
+
+  <section class="clause" id="s11">
+    <h2>十一、内置浏览器、媒体与文档查看</h2>
+    <p class="item"><span class="num">11.1</span><span class="txt">内置浏览器支持多标签、地址栏、搜索、书签与页面内下载。网页触发的上传可选择任意类型文件并支持多选；HTTP 下载交给系统下载器，blob / data 链接由应用内桥接保存，页面底部会显示实时下载进度。</span></p>
+    <p class="item"><span class="num">11.2</span><span class="txt">图片支持双指缩放、双击放大与拖动；视频与音频使用 Media3 ExoPlayer 播放，媒体文件可在同一查看器中左右滑动切换。</span></p>
+    <p class="item"><span class="num">11.3</span><span class="txt">PDF 查看器提供页码跳转、缩放、分享与文件详情。查看器中删除文件后，结果会回传到主界面并刷新当前目录。</span></p>
+  </section>
+
+  <section class="clause" id="s12">
+    <h2>十二、AI 文件管理助手</h2>
+    <p class="item"><span class="num">12.1</span><span class="txt">侧拉栏“文件管理 Agent”提供自然语言驱动的文件操作与问答。所有文件事实均由工具调用获取，模型不会凭空编造文件内容。</span></p>
+    <p class="item"><span class="num">12.2</span><span class="txt">任何写操作都遵循“预览 → 确认 → 执行 → 撤销”的闭环；批量操作超过 10 个文件时会先汇总确认。可在设置中单独授权某些操作默认允许。</span></p>
+    <p class="item"><span class="num">12.3</span><span class="txt">支持多会话、多标签、对话持久化与重命名，每个会话拥有独立上下文；支持接入第三方 MCP 服务器，并可记录 HTTP 请求日志。</span></p>
+    <p class="item"><span class="num">12.4</span><span class="txt">敏感目录、保险箱与加密容器默认不索引、不自动扫描；AI 生成的创作内容如需保存为文件，同样会走标准写操作确认流程。</span></p>
+  </section>
+
+  <section class="clause" id="s13">
+    <h2>十三、常见问题 FAQ</h2>
+    <p class="item"><span class="num">Q1</span><span class="txt"><strong>看不到 Android/data 或 obb 目录？</strong><br>请确认已授予“所有文件访问权限”，并在设置中将访问引擎设为自动、Root 或 Shizuku。Android 11 及以上普通分区存储无法直接访问部分系统目录。</span></p>
+    <p class="item"><span class="num">Q2</span><span class="txt"><strong>Shizuku 已安装但仍提示无权限？</strong><br>需先在 Shizuku 应用中启动服务并授权 FreeFile；部分设备每次重启后需要重新启动 Shizuku。</span></p>
+    <p class="item"><span class="num">Q3</span><span class="txt"><strong>目录打开很慢或大小显示为“—”？</strong><br>文件大小计算默认关闭。可在设置中开启，或仅对需要统计的目录使用属性面板，避免扫描超大目录。</span></p>
+    <p class="item"><span class="num">Q4</span><span class="txt"><strong>压缩包提示密码错误？</strong><br>请确认压缩包确实加密、密码大小写与字符完全一致。本应用的“文件加密”密码与 ZIP 压缩包密码互不相通。</span></p>
+    <p class="item"><span class="num">Q5</span><span class="txt"><strong>删除的文件去哪里了？</strong><br>默认进入回收站，可在侧拉栏“回收站”恢复或清空。若已选择永久删除，则无法通过应用恢复。</span></p>
+    <p class="item"><span class="num">Q6</span><span class="txt"><strong>终端没有输出或键盘异常？</strong><br>请确认会话已创建且未被系统回收；可尝试新建会话、切换普通 / Root 模式，或在设置中更换解释器路径。</span></p>
+    <p class="item"><span class="num">Q7</span><span class="txt"><strong>如何切换语言？</strong><br>进入“设置 → 语言”，选择简体中文或 English，应用会即时切换。Gallery 中的文档也可单独切换中英文版本。</span></p>
+    <p class="item"><span class="num">Q8</span><span class="txt"><strong>为什么网页下载没有出现在“下载”目录？</strong><br>HTTP 下载由系统下载器保存到公共下载目录；blob / data 内容由应用写入下载目录。受分区存储限制时，文件可能位于应用专属的外部目录。</span></p>
+  </section>
+
+  <section class="clause" id="s14">
+    <h2>十四、反馈与支持</h2>
+    <p class="item"><span class="num">14.1</span><span class="txt">FreeFile 是开源项目，源码与问题追踪均位于 <a href="https://github.com/MetxStudio/FreeFile" target="_blank" rel="noopener">github.com/MetxStudio/FreeFile</a>。</span></p>
+    <p class="item"><span class="num">14.2</span><span class="txt">提交问题时，建议附上设备型号、Android 版本、应用版本、复现步骤与相关截图；请勿在公开 Issue 中粘贴隐私文件内容或账号密码。</span></p>
+    <p class="item"><span class="num">14.3</span><span class="txt">使用前请同时阅读《用户协议》与《隐私政策》。本帮助文档仅用于功能说明，不构成对任何操作结果的保证。</span></p>
+  </section>
+
+  <footer class="doc-foot">
+    <span class="line"></span>
+    FreeFile 为开源项目，采用 MIT License 授权<br>
+    本帮助文档会随版本更新调整，请以应用内最新内容为准<br>
+    © FreeFile Project
+  </footer>
+</div>
+
+<button id="toTop" type="button" aria-label="回到顶部">↑</button>
+<script>
+  (function () {
+    var btn = document.getElementById('toTop');
+    function onScroll() {
+      if (window.scrollY > 400) btn.classList.add('show');
+      else btn.classList.remove('show');
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    btn.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    onScroll();
+  })();
+</script>
+</body>
+</html>

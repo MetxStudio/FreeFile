@@ -61,17 +61,25 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="33">
 
+        <!-- 启动页：展示图标、versionName 与 Debug/Release 构建类型 -->
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.SplashActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
-            android:theme="@style/Theme.FreeFile">
+            android:theme="@style/Theme.FreeFile.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
+            android:theme="@style/Theme.FreeFile" />
 
         <!-- 终端：独立任务栈，taskAffinity 与主界面隔离 -->
         <activity
@@ -117,13 +125,29 @@
             android:taskAffinity="${applicationId}.tooltary"
             android:theme="@style/Theme.FreeFile" />
 
-        <!-- 打开方式：承载单击文件的「分享/系统打开/内置功能」6 选项，结果回传主页 -->
+        <!-- 打开方式：承载单击文件的「分享/系统打开/内置功能」选项，支持外部应用分享多文件/文件夹 -->
         <activity
             android:name=".ui.OpenWithActivity"
-            android:exported="false"
+            android:exported="true"
             android:label="@string/open_with_title"
             android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
-            android:theme="@style/Theme.FreeFile" />
+            android:theme="@style/Theme.FreeFile">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+        </activity>
 
         <!-- 媒体查看器：图片 / 视频 / 音频统一查看播放，独立任务栈 -->
         <activity
@@ -131,8 +155,78 @@
             android:exported="false"
             android:label="@string/media_viewer_title"
             android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
+            android:resizeableActivity="true"
+            android:supportsPictureInPicture="true"
             android:taskAffinity="${applicationId}.mediaviewer"
             android:theme="@style/Theme.FreeFile" />
+
+        <!-- PDF 查看器：PDF 的 Uri/路径由外部传入 -->
+        <activity
+            android:name=".tools.pdfviewer.PdfViewerActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:label="@string/pdf_viewer_title"
+            android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
+            android:theme="@style/Theme.FreeFile">
+            <!-- 外部应用通过"打开方式"传入 content:// 或 file:// -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:mimeType="application/pdf" />
+                <data android:scheme="content" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:mimeType="application/pdf" />
+                <data android:scheme="file" />
+            </intent-filter>
+        </activity>
+
+        <!-- 网页查看器：多标签浏览器，侧拉栏管理标签 -->
+        <activity
+            android:name=".tools.web.WebViewerActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:label="@string/web_viewer_title"
+            android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
+            android:theme="@style/Theme.FreeFile">
+            <!-- 浏览器入口：http/https -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+            </intent-filter>
+            <!-- 本地 HTML 文件 -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:mimeType="text/html" />
+            </intent-filter>
+        </activity>
+
+        <!-- 点九编辑器：编辑 .9.png 引导线 -->
+        <activity
+            android:name=".tools.dotnine.DotNineEditorActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:label="@string/dotnine_title"
+            android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
+            android:theme="@style/Theme.FreeFile">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="file" />
+                <data android:mimeType="image/png" />
+            </intent-filter>
+        </activity>
 
         <!-- 设置：独立任务栈 -->
         <activity
@@ -168,6 +262,16 @@
             android:label="@string/vbox_title"
             android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
             android:taskAffinity="${applicationId}.virtualbox"
+            android:theme="@style/Theme.FreeFile" />
+
+        <!-- 文件管理 Agent：独立任务栈，仅应用内路由 -->
+        <activity
+            android:name=".tools.ai.AgentActivity"
+            android:exported="false"
+            android:label="@string/ai_onboard_title"
+            android:launchMode="singleTask"
+            android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
+            android:taskAffinity="${applicationId}.aiagent"
             android:theme="@style/Theme.FreeFile" />
 
         <!-- NewBlackbox 内部使用的 Provider（虚拟应用安装/启动所需） -->

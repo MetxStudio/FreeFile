@@ -13,7 +13,7 @@ android {
         minSdk = 24
         targetSdk = 33
         versionCode = 1
-        versionName = "1.0"
+        versionName = "FreeFile X0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -39,6 +39,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.14"
@@ -99,6 +100,7 @@ dependencies {
 
     // ==================== Sprint 5：网络与终端 ====================
     implementation("com.squareup.okhttp3:okhttp:4.12.0")           // HTTP 客户端（WebDAV/S3/快传）
+    implementation("com.squareup.okhttp3:okhttp-sse:4.12.0")       // SSE 流式（文件管理 Agent 接 LLM）
     implementation("commons-net:commons-net:3.10.0")               // FTP 协议
     implementation("com.hierynomus:smbj:0.13.0")                   // SMB2/3 协议
     implementation("org.slf4j:slf4j-android:1.7.36")               // smbj 日志绑定
@@ -110,6 +112,9 @@ dependencies {
     implementation("com.github.termux.termux-app:terminal-view:v0.118.0")
 
     testImplementation("junit:junit:4.13.2")
+    // 本地 JVM 单测使用真实 org.json（android.jar 内为 stub）
+    testImplementation("org.json:json:20231013")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation(platform("androidx.compose:compose-bom:2024.02.01"))
@@ -125,7 +130,11 @@ dependencies {
     // ==================== 媒体查看器（MVP） ====================
     implementation("io.coil-kt:coil-compose:2.5.0")                       // 图片加载（含 GIF/WebP）
     implementation("io.coil-kt:coil-video:2.5.0")                         // 视频首帧缩略图
+    // PDF 查看器（jitpack）；Jetifier 自动将其旧 support-v4 依赖重定向到 androidx
+    implementation("com.github.barteksc:AndroidPdfViewer:2.0.2")
+    implementation("io.coil-kt:coil-gif:2.5.0")                           // GIF/WebP 动图解码器
+    implementation("androidx.exifinterface:exifinterface:1.3.7")          // 图片 EXIF 信息读取
     implementation("androidx.media3:media3-exoplayer:1.2.1")             // 音视频播放核心
-    implementation("androidx.media3:media3-ui:1.2.1")                    // PlayerView 控件
+    implementation("androidx.media3:media3-ui:1.2.1")                    // PlayerView 控件（含轨道选择对话框）
     implementation("androidx.media3:media3-common:1.2.1")
 }

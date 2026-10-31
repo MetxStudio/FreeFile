@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#2f6fed">
+<title>关于 FreeFile</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#ffffff; --text:#1f2329; --muted:#6b7480;
+    --line:#e6e9ee; --accent:#2f6fed; --accent-soft:#eef3ff;
+    --warn-bg:#fff8e8; --warn-line:#f0c36d;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0e1013; --card:#16191e; --text:#e7eaee; --muted:#98a2b0;
+      --line:#252b33; --accent:#7aa6ff; --accent-soft:#1a2332;
+      --warn-bg:#241f14; --warn-line:#6d5620;
+    }
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",
+      "Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+    font-size:16px;line-height:1.75;overflow-wrap:break-word;word-break:break-word;
+  }
+  a{color:var(--accent);text-decoration:none;}
+  .wrap{max-width:820px;margin:0 auto;padding:20px 16px calc(56px + env(safe-area-inset-bottom));}
+  .hero{
+    text-align:center;padding:28px 18px 24px;background:var(--card);
+    border:1px solid var(--line);border-radius:18px;
+  }
+  .logo{
+    width:64px;height:64px;margin:0 auto 12px;border-radius:16px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:28px;font-weight:700;color:#fff;
+    background:linear-gradient(135deg,#2f6fed,#6aa1ff);
+    box-shadow:0 8px 20px rgba(47,111,237,.28);
+  }
+  .hero h1{font-size:24px;margin:0 0 4px;letter-spacing:.5px;}
+  .hero .tagline{margin:0 0 14px;font-size:14px;color:var(--muted);}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;}
+  .badges span{
+    font-size:12px;line-height:1.5;color:var(--accent);background:var(--accent-soft);
+    border-radius:999px;padding:4px 11px;white-space:nowrap;
+  }
+  section.clause{
+    margin:14px 0;padding:16px 16px 6px;background:var(--card);
+    border:1px solid var(--line);border-radius:14px;scroll-margin-top:16px;
+  }
+  section.clause h2{
+    margin:0 0 12px;padding-left:10px;font-size:16.5px;font-weight:700;
+    line-height:1.45;border-left:4px solid var(--accent);
+  }
+  .item{display:flex;gap:8px;margin:0 0 10px;font-size:15px;}
+  .item .num{flex:0 0 auto;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums;}
+  .item .txt{flex:1 1 auto;}
+  .grid{display:grid;grid-template-columns:1fr;gap:10px;margin:0 0 12px;}
+  .card{
+    padding:12px 14px;background:var(--accent-soft);border:1px solid var(--line);
+    border-radius:12px;font-size:14.5px;
+  }
+  .card b{display:block;margin-bottom:4px;font-size:15px;}
+  table{width:100%;border-collapse:collapse;margin:0 0 12px;font-size:14px;}
+  th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{color:var(--muted);font-weight:600;white-space:nowrap;}
+  .links{display:grid;grid-template-columns:1fr;gap:8px;margin:0 0 12px;}
+  .links a{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:12px 14px;background:var(--accent-soft);border:1px solid var(--line);
+    border-radius:12px;color:var(--text);font-size:14.5px;
+  }
+  .links a .arrow{color:var(--accent);font-size:15px;}
+  .notice{
+    margin:18px 0;padding:14px 16px;font-size:14.5px;line-height:1.72;
+    background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:14px;
+  }
+  .doc-foot{
+    margin-top:26px;padding:16px 8px;text-align:center;font-size:12.5px;
+    line-height:1.8;color:var(--muted);
+  }
+  .doc-foot .line{display:block;width:36px;height:2px;margin:0 auto 12px;background:var(--line);border-radius:2px;}
+  #toTop{
+    position:fixed;right:16px;bottom:calc(20px + env(safe-area-inset-bottom));
+    width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+    font-size:17px;color:var(--accent);background:var(--card);
+    border:1px solid var(--line);border-radius:50%;
+    box-shadow:0 4px 14px rgba(0,0,0,.14);cursor:pointer;opacity:0;
+    pointer-events:none;transform:translateY(8px);
+    transition:opacity .2s ease, transform .2s ease;-webkit-tap-highlight-color:transparent;
+  }
+  #toTop.show{opacity:1;pointer-events:auto;transform:none;}
+  #toTop:active{transform:scale(.94);}
+  @media (min-width:600px){
+    body{font-size:16.5px;} .hero h1{font-size:28px;}
+    section.clause{padding:20px 22px 8px;} .item{font-size:15.5px;}
+    .grid,.links{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="logo">FF</div>
+    <h1>FreeFile</h1>
+    <p class="tagline">全能文件大师 · 综合文件管理与逆向分析工具</p>
+    <div class="badges">
+      <span>版本 v1.0</span>
+      <span>Android 7.0+</span>
+      <span>Kotlin · Jetpack Compose</span>
+      <span>MIT License</span>
+    </div>
+  </header>
+
+  <section class="clause" id="s1">
+    <h2>一、关于本应用</h2>
+    <p class="item"><span class="num">1.1</span><span class="txt">FreeFile 是一款面向进阶用户的 Android 双窗格文件管理器。它以双窗格与多标签为核心交互，通过统一的虚拟文件系统（VFS）同时管理本地存储、Root / Shizuku 高权限路径、压缩包内部以及 SMB / FTP / WebDAV / S3 等远程位置。</span></p>
+    <p class="item"><span class="num">1.2</span><span class="txt">除文件管理外，应用还整合了搜索与索引、压缩解压、文件加密、内置终端、Lua / Python 脚本、文本与富文本编辑、APK 逆向工具、媒体与 PDF 查看、内置浏览器以及 AI 文件管理助手。</span></p>
+    <p class="item"><span class="num">1.3</span><span class="txt">应用坚持本地优先：文件浏览、搜索索引与加解密均在本机完成；除用户主动配置的远程存储、局域网快传或 AI 服务外，不会主动上传文件内容。</span></p>
+  </section>
+
+  <section class="clause" id="s2">
+    <h2>二、版本信息</h2>
+    <table>
+      <tr><th>应用名称</th><td>FreeFile（全能文件大师）</td></tr>
+      <tr><th>包名</th><td>com.freefile</td></tr>
+      <tr><th>版本</th><td>v1.0（versionCode 1）</td></tr>
+      <tr><th>系统要求</th><td>Android 7.0（API 24）及以上</td></tr>
+      <tr><th>targetSdk</th><td>33</td></tr>
+      <tr><th>开发者</th><td>hkq（Metx Studio）</td></tr>
+      <tr><th>开源许可</th><td>MIT License</td></tr>
+      <tr><th>更新日期</th><td>2026-10-30</td></tr>
+    </table>
+    <p class="item"><span class="num">2.1</span><span class="txt">当前版本核心功能已落地并可编译运行，部分能力仍在持续迭代。版本号与更新日期请以应用内“设置 → 关于”显示为准。</span></p>
+  </section>
+
+  <section class="clause" id="s3">
+    <h2>三、主要能力</h2>
+    <div class="grid">
+      <div class="card"><b>文件管理</b>双窗格、多标签、批量重命名、回收站、多选、属性校验、视图与过滤。</div>
+      <div class="card"><b>高权限访问</b>Root / Shizuku 自动探测与手动切换，记忆路径与引擎映射。</div>
+      <div class="card"><b>搜索索引</b>深度、通配符、正则、内容过滤，可选后台索引缓存。</div>
+      <div class="card"><b>压缩与加密</b>十余种压缩格式、包内浏览、加密 ZIP，以及独立的单文件 .cry 加密。</div>
+      <div class="card"><b>网络与快传</b>WebDAV / FTP / SMB / S3，局域网 mDNS 发现与免流量互传。</div>
+      <div class="card"><b>终端与脚本</b>真 PTY 终端、多会话、Root 模式，Lua / Python 文件 API。</div>
+      <div class="card"><b>编辑与查看</b>文本 / 富文本编辑器、媒体查看器、PDF 查看器、内置浏览器。</div>
+      <div class="card"><b>逆向与扩展</b>工具托盘、APK 启动器、虚拟容器，以及 AI 文件管理助手。</div>
+    </div>
+  </section>
+
+  <section class="clause" id="s4">
+    <h2>四、技术栈</h2>
+    <table>
+      <tr><th>语言与界面</th><td>Kotlin、Jetpack Compose、Material3</td></tr>
+      <tr><th>架构</th><td>MVI + ViewModel、StateFlow、协程</td></tr>
+      <tr><th>数据持久化</th><td>Room（标签 / 书签 / 历史 / 回收站）、DataStore（偏好设置）</td></tr>
+      <tr><th>权限与 Shell</th><td>Shizuku API、Root Shell</td></tr>
+      <tr><th>压缩</th><td>zip4j、Apache Commons Compress、XZ、JunRAR</td></tr>
+      <tr><th>网络</td><td>OkHttp、commons-net、SMBJ、NanoHTTPD、jmdns</td></tr>
+      <tr><th>终端与脚本</th><td>Termux terminal-emulator / terminal-view、LuaJ</td></tr>
+      <tr><th>文档与媒体</th><td>richeditor-compose、Media3 ExoPlayer、AndroidPdfViewer</td></tr>
+    </table>
+  </section>
+
+  <section class="clause" id="s5">
+    <h2>五、权限说明</h2>
+    <table>
+      <tr><th>所有文件访问</th><td>浏览、复制、移动、重命名与删除共享存储中的文件。Android 11 及以上需在系统设置中手动授予。</td></tr>
+      <tr><th>Shizuku 权限</th><td>在无 Root 时访问受保护目录。需用户主动安装、启动并授权 Shizuku。</td></tr>
+      <tr><th>安装与包查询</th><td>解析 APK 信息、调用工具托盘与安装应用。</td></tr>
+      <tr><th>网络与 WLAN</th><td>连接远程存储、局域网快传与 mDNS 设备发现。</td></tr>
+      <tr><th>前台服务</th><td>保障文件传输、压缩解压等长时任务稳定运行。</td></tr>
+      <tr><th>相机 / 存储（按需）</th><td>仅在内置浏览器上传、拍照等用户主动操作时请求。</td></tr>
+    </table>
+    <p class="item"><span class="num">5.1</span><span class="txt">应用不会请求与功能无关的权限。详细的数据处理方式请阅读《隐私政策》。</span></p>
+  </section>
+
+  <section class="clause" id="s6">
+    <h2>六、开源与致谢</h2>
+    <p class="item"><span class="num">6.1</span><span class="txt">本项目采用 MIT License 授权，源码公开于 <a href="https://github.com/MetxStudio/FreeFile" target="_blank" rel="noopener">github.com/MetxStudio/FreeFile</a>。您可以在遵守许可证条款的前提下使用、修改与分发本项目。</span></p>
+    <p class="item"><span class="num">6.2</span><span class="txt">感谢 Jetpack Compose、Termux terminal-emulator、zip4j、Apache Commons Compress、SMBJ、NanoHTTPD、jmdns、LuaJ、richeditor-compose、Media3、AndroidPdfViewer 等开源项目及其维护者。</span></p>
+    <p class="item"><span class="num">6.3</span><span class="txt">各第三方组件分别遵循其自身许可证；本应用的 MIT License 不改变这些组件原有的授权条件。</span></p>
+  </section>
+
+  <section class="clause" id="s7">
+    <h2>七、免责声明</h2>
+    <div class="notice">
+      FreeFile 提供 Root / Shizuku 高权限文件操作能力。删除、移动或修改系统文件可能导致设备异常、数据丢失或无法开机，
+      请在充分了解风险并做好备份的前提下使用。因用户操作不当造成的任何损失，开发者不承担责任。
+    </div>
+    <p class="item"><span class="num">7.1</span><span class="txt">局域网快传默认仅在私有网络中使用明文传输，请勿在公共网络开放服务，也不要传输敏感文件。</span></p>
+    <p class="item"><span class="num">7.2</span><span class="txt">应用内逆向工具仅用于学习研究、个人文件处理及对自有应用的分析。请遵守当地法律法规及目标软件的许可协议。</span></p>
+    <p class="item"><span class="num">7.3</span><span class="txt">本应用按“现状”提供，不对特定用途适用性、无中断或无错误作出明示或默示担保。详见 MIT License 中的免责条款。</span></p>
+  </section>
+
+  <section class="clause" id="s8">
+    <h2>八、相关链接</h2>
+    <div class="links">
+      <a href="https://github.com/MetxStudio/FreeFile" target="_blank" rel="noopener"><span>项目主页与源码</span><span class="arrow">↗</span></a>
+      <a href="https://github.com/MetxStudio/FreeFile/issues" target="_blank" rel="noopener"><span>问题反馈（Issues）</span><span class="arrow">↗</span></a>
+      <a href="https://github.com/MetxStudio/FreeFile/blob/main/LICENSE.md" target="_blank" rel="noopener"><span>MIT License 全文</span><span class="arrow">↗</span></a>
+    </div>
+    <p class="item"><span class="num">8.1</span><span class="txt">如需了解具体功能与操作方法，请阅读 Gallery 中的“应用介绍与帮助文档”；如需了解数据处理方式，请阅读“隐私政策”。</span></p>
+  </section>
+
+  <footer class="doc-foot">
+    <span class="line"></span>
+    FreeFile · 全能文件大师<br>
+    © 2026 hkq (Metx Studio) · MIT License<br>
+    感谢每一位使用与反馈的用户
+  </footer>
+</div>
+
+<button id="toTop" type="button" aria-label="回到顶部">↑</button>
+<script>
+  (function () {
+    var btn = document.getElementById('toTop');
+    function onScroll() {
+      if (window.scrollY > 400) btn.classList.add('show');
+      else btn.classList.remove('show');
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    btn.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    onScroll();
+  })();
+</script>
+</body>
+</html>

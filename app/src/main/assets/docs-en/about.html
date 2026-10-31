@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#2f6fed">
+<title>About FreeFile</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#ffffff; --text:#1f2329; --muted:#6b7480;
+    --line:#e6e9ee; --accent:#2f6fed; --accent-soft:#eef3ff;
+    --warn-bg:#fff8e8; --warn-line:#f0c36d;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0e1013; --card:#16191e; --text:#e7eaee; --muted:#98a2b0;
+      --line:#252b33; --accent:#7aa6ff; --accent-soft:#1a2332;
+      --warn-bg:#241f14; --warn-line:#6d5620;
+    }
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+    font-size:16px;line-height:1.75;overflow-wrap:break-word;word-break:break-word;
+  }
+  a{color:var(--accent);text-decoration:none;}
+  .wrap{max-width:820px;margin:0 auto;padding:20px 16px calc(56px + env(safe-area-inset-bottom));}
+  .hero{
+    text-align:center;padding:28px 18px 24px;background:var(--card);
+    border:1px solid var(--line);border-radius:18px;
+  }
+  .logo{
+    width:64px;height:64px;margin:0 auto 12px;border-radius:16px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:28px;font-weight:700;color:#fff;
+    background:linear-gradient(135deg,#2f6fed,#6aa1ff);
+    box-shadow:0 8px 20px rgba(47,111,237,.28);
+  }
+  .hero h1{font-size:24px;margin:0 0 4px;letter-spacing:.5px;}
+  .hero .tagline{margin:0 0 14px;font-size:14px;color:var(--muted);}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;}
+  .badges span{
+    font-size:12px;line-height:1.5;color:var(--accent);background:var(--accent-soft);
+    border-radius:999px;padding:4px 11px;white-space:nowrap;
+  }
+  section.clause{
+    margin:14px 0;padding:16px 16px 6px;background:var(--card);
+    border:1px solid var(--line);border-radius:14px;scroll-margin-top:16px;
+  }
+  section.clause h2{
+    margin:0 0 12px;padding-left:10px;font-size:16.5px;font-weight:700;
+    line-height:1.45;border-left:4px solid var(--accent);
+  }
+  .item{display:flex;gap:8px;margin:0 0 10px;font-size:15px;}
+  .item .num{flex:0 0 auto;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums;}
+  .item .txt{flex:1 1 auto;}
+  .grid{display:grid;grid-template-columns:1fr;gap:10px;margin:0 0 12px;}
+  .card{
+    padding:12px 14px;background:var(--accent-soft);border:1px solid var(--line);
+    border-radius:12px;font-size:14.5px;
+  }
+  .card b{display:block;margin-bottom:4px;font-size:15px;}
+  table{width:100%;border-collapse:collapse;margin:0 0 12px;font-size:14px;}
+  th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{color:var(--muted);font-weight:600;white-space:nowrap;}
+  .links{display:grid;grid-template-columns:1fr;gap:8px;margin:0 0 12px;}
+  .links a{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:12px 14px;background:var(--accent-soft);border:1px solid var(--line);
+    border-radius:12px;color:var(--text);font-size:14.5px;
+  }
+  .links a .arrow{color:var(--accent);font-size:15px;}
+  .notice{
+    margin:18px 0;padding:14px 16px;font-size:14.5px;line-height:1.72;
+    background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:14px;
+  }
+  .doc-foot{
+    margin-top:26px;padding:16px 8px;text-align:center;font-size:12.5px;
+    line-height:1.8;color:var(--muted);
+  }
+  .doc-foot .line{display:block;width:36px;height:2px;margin:0 auto 12px;background:var(--line);border-radius:2px;}
+  #toTop{
+    position:fixed;right:16px;bottom:calc(20px + env(safe-area-inset-bottom));
+    width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+    font-size:17px;color:var(--accent);background:var(--card);
+    border:1px solid var(--line);border-radius:50%;
+    box-shadow:0 4px 14px rgba(0,0,0,.14);cursor:pointer;opacity:0;
+    pointer-events:none;transform:translateY(8px);
+    transition:opacity .2s ease, transform .2s ease;-webkit-tap-highlight-color:transparent;
+  }
+  #toTop.show{opacity:1;pointer-events:auto;transform:none;}
+  #toTop:active{transform:scale(.94);}
+  @media (min-width:600px){
+    body{font-size:16.5px;} .hero h1{font-size:28px;}
+    section.clause{padding:20px 22px 8px;} .item{font-size:15.5px;}
+    .grid,.links{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="logo">FF</div>
+    <h1>FreeFile</h1>
+    <p class="tagline">All-in-one file manager · comprehensive file management and reverse-engineering toolkit</p>
+    <div class="badges">
+      <span>Version v1.0</span>
+      <span>Android 7.0+</span>
+      <span>Kotlin · Jetpack Compose</span>
+      <span>MIT License</span>
+    </div>
+  </header>
+
+  <section class="clause" id="s1">
+    <h2>1. About the App</h2>
+    <p class="item"><span class="num">1.1</span><span class="txt">FreeFile is an Android dual-pane file manager for advanced users. Built around dual panes and multiple tabs, it uses a unified Virtual File System (VFS) to manage local storage, privileged Root / Shizuku paths, archive contents, and remote locations such as SMB, FTP, WebDAV, and S3.</span></p>
+    <p class="item"><span class="num">1.2</span><span class="txt">Beyond file management, the app integrates search and indexing, compression and extraction, file encryption, a built-in terminal, Lua / Python scripting, text and rich text editing, APK reverse-engineering tools, media and PDF viewers, a built-in browser, and an AI file management assistant.</span></p>
+    <p class="item"><span class="num">1.3</span><span class="txt">The app is local-first: browsing, search indexes, encryption, and decryption all run on the device. It does not upload file contents unless you explicitly configure remote storage, LAN sharing, or an AI service.</span></p>
+  </section>
+
+  <section class="clause" id="s2">
+    <h2>2. Version Information</h2>
+    <table>
+      <tr><th>App name</th><td>FreeFile</td></tr>
+      <tr><th>Package</th><td>com.freefile</td></tr>
+      <tr><th>Version</th><td>v1.0 (versionCode 1)</td></tr>
+      <tr><th>Requirement</th><td>Android 7.0 (API 24) and later</td></tr>
+      <tr><th>targetSdk</th><td>33</td></tr>
+      <tr><th>Developer</th><td>hkq (Metx Studio)</td></tr>
+      <tr><th>License</th><td>MIT License</td></tr>
+      <tr><th>Updated</th><td>2026-10-30</td></tr>
+    </table>
+    <p class="item"><span class="num">2.1</span><span class="txt">Core features are implemented and buildable in the current version, while some capabilities are still being refined. The version number and date shown under Settings → About in the app always prevail.</span></p>
+  </section>
+
+  <section class="clause" id="s3">
+    <h2>3. Key Capabilities</h2>
+    <div class="grid">
+      <div class="card"><b>File management</b>Dual panes, tabs, batch rename, recycle bin, multi-select, property checksums, views, and filters.</div>
+      <div class="card"><b>Privileged access</b>Automatic Root / Shizuku detection with manual override and remembered path-to-engine mappings.</div>
+      <div class="card"><b>Search index</b>Depth, wildcard, regex, and content filters with an optional background index cache.</div>
+      <div class="card"><b>Compression &amp; encryption</b>More than a dozen archive formats, in-archive browsing, encrypted ZIP, and standalone .cry file encryption.</div>
+      <div class="card"><b>Network &amp; sharing</b>WebDAV / FTP / SMB / S3 plus mDNS discovery and data-free LAN transfers.</div>
+      <div class="card"><b>Terminal &amp; scripting</b>Real PTY terminal with multiple sessions and Root mode, plus Lua / Python file APIs.</div>
+      <div class="card"><b>Editing &amp; viewing</b>Text and rich text editors, media viewer, PDF viewer, and a built-in browser.</div>
+      <div class="card"><b>Tools &amp; extensions</b>Tool tray, APK launcher, virtual container, and the AI file management assistant.</div>
+    </div>
+  </section>
+
+  <section class="clause" id="s4">
+    <h2>4. Technology Stack</h2>
+    <table>
+      <tr><th>Language &amp; UI</th><td>Kotlin, Jetpack Compose, Material3</td></tr>
+      <tr><th>Architecture</th><td>MVI + ViewModel, StateFlow, coroutines</td></tr>
+      <tr><th>Persistence</th><td>Room (tabs / bookmarks / history / recycle bin), DataStore (preferences)</td></tr>
+      <tr><th>Privilege &amp; shell</th><td>Shizuku API, Root Shell</td></tr>
+      <tr><th>Compression</th><td>zip4j, Apache Commons Compress, XZ, JunRAR</td></tr>
+      <tr><th>Networking</th><td>OkHttp, commons-net, SMBJ, NanoHTTPD, jmdns</td></tr>
+      <tr><th>Terminal &amp; scripting</th><td>Termux terminal-emulator / terminal-view, LuaJ</td></tr>
+      <tr><th>Documents &amp; media</th><td>richeditor-compose, Media3 ExoPlayer, AndroidPdfViewer</td></tr>
+    </table>
+  </section>
+
+  <section class="clause" id="s5">
+    <h2>5. Permissions</h2>
+    <table>
+      <tr><th>All files access</th><td>Browse, copy, move, rename, and delete files in shared storage. On Android 11 and later this must be granted manually in system settings.</td></tr>
+      <tr><th>Shizuku</th><td>Access protected directories when Root is unavailable. Requires the user to install, start, and authorize Shizuku.</td></tr>
+      <tr><th>Install &amp; package query</th><td>Parse APK information, use the tool tray, and install apps.</td></tr>
+      <tr><th>Network &amp; Wi-Fi</th><td>Connect to remote storage, share files on the LAN, and discover devices via mDNS.</td></tr>
+      <tr><th>Foreground service</th><td>Keep long-running transfers, compression, and extraction reliable.</td></tr>
+      <tr><th>Camera / storage (on demand)</th><td>Requested only for user-initiated actions such as browser uploads or taking a photo.</td></tr>
+    </table>
+    <p class="item"><span class="num">5.1</span><span class="txt">The app does not request permissions unrelated to its features. See the Privacy Policy for details on data handling.</span></p>
+  </section>
+
+  <section class="clause" id="s6">
+    <h2>6. Open Source &amp; Acknowledgements</h2>
+    <p class="item"><span class="num">6.1</span><span class="txt">This project is licensed under the MIT License, and the source code is available at <a href="https://github.com/MetxStudio/FreeFile" target="_blank" rel="noopener">github.com/MetxStudio/FreeFile</a>. You may use, modify, and distribute it in accordance with the license terms.</span></p>
+    <p class="item"><span class="num">6.2</span><span class="txt">Thanks to Jetpack Compose, Termux terminal-emulator, zip4j, Apache Commons Compress, SMBJ, NanoHTTPD, jmdns, LuaJ, richeditor-compose, Media3, AndroidPdfViewer, and their maintainers.</span></p>
+    <p class="item"><span class="num">6.3</span><span class="txt">Each third-party component remains under its own license. The app's MIT License does not alter those original terms.</span></p>
+  </section>
+
+  <section class="clause" id="s7">
+    <h2>7. Disclaimer</h2>
+    <div class="notice">
+      FreeFile provides privileged Root / Shizuku file operations. Deleting, moving, or modifying system files may cause device malfunction,
+      data loss, or failure to boot. Use these features only when you understand the risks and have made backups. The developer is not
+      liable for any loss caused by improper user operations.
+    </div>
+    <p class="item"><span class="num">7.1</span><span class="txt">LAN sharing uses plaintext transfer and is intended for private networks only. Do not expose the service on public networks or transfer sensitive files.</span></p>
+    <p class="item"><span class="num">7.2</span><span class="txt">The reverse-engineering tools are intended only for study, personal file processing, and analysis of apps you own. Comply with local laws and the target software's license.</span></p>
+    <p class="item"><span class="num">7.3</span><span class="txt">The app is provided “as is”, without express or implied warranties of fitness for a particular purpose, uninterrupted operation, or freedom from errors. See the MIT License for the full disclaimer.</span></p>
+  </section>
+
+  <section class="clause" id="s8">
+    <h2>8. Links</h2>
+    <div class="links">
+      <a href="https://github.com/MetxStudio/FreeFile" target="_blank" rel="noopener"><span>Project home &amp; source</span><span class="arrow">↗</span></a>
+      <a href="https://github.com/MetxStudio/FreeFile/issues" target="_blank" rel="noopener"><span>Report an issue</span><span class="arrow">↗</span></a>
+      <a href="https://github.com/MetxStudio/FreeFile/blob/main/LICENSE.md" target="_blank" rel="noopener"><span>Full MIT License text</span><span class="arrow">↗</span></a>
+    </div>
+    <p class="item"><span class="num">8.1</span><span class="txt">For features and usage instructions, read “Introduction &amp; Help” in the Gallery. For how data is handled, read the Privacy Policy.</span></p>
+  </section>
+
+  <footer class="doc-foot">
+    <span class="line"></span>
+    FreeFile · all-in-one file manager<br>
+    © 2026 hkq (Metx Studio) · MIT License<br>
+    Thanks to every user who uses and supports the project
+  </footer>
+</div>
+
+<button id="toTop" type="button" aria-label="Back to top">↑</button>
+<script>
+  (function () {
+    var btn = document.getElementById('toTop');
+    function onScroll() {
+      if (window.scrollY > 400) btn.classList.add('show');
+      else btn.classList.remove('show');
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    btn.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    onScroll();
+  })();
+</script>
+</body>
+</html>

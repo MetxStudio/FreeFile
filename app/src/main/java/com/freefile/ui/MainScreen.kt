@@ -35,6 +35,8 @@ import androidx.compose.material.icons.rounded.CenterFocusWeak
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Cloud
 import androidx.compose.material.icons.rounded.Code
+import androidx.compose.material.icons.rounded.Collections
+import androidx.compose.material.icons.rounded.SmartToy
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.CompareArrows
 import androidx.compose.material.icons.rounded.ContentCopy
@@ -130,6 +132,7 @@ import com.freefile.util.FileOpener
 import com.freefile.util.Format
 import com.freefile.operations.Conflict
 import com.freefile.operations.ConflictResolution
+import com.freefile.operations.FileChangeBus
 import com.freefile.operations.FileOperations
 import com.freefile.operations.OpKind
 import com.freefile.operations.TransferManager
@@ -144,13 +147,13 @@ import com.freefile.ui.dialogs.ConfirmExtractDialog
 import com.freefile.ui.dialogs.CompressDialog
 import com.freefile.ui.dialogs.ConflictDialog
 import com.freefile.ui.dialogs.ConfirmOverwriteDialog
+import com.freefile.ui.dialogs.GalleryDialog
 import com.freefile.ui.dialogs.JumpToPathDialog
 import com.freefile.ui.dialogs.NewNodeDialog
 import com.freefile.ui.dialogs.PropertiesDialog
 import com.freefile.ui.dialogs.SearchSettingsDialog
 import com.freefile.ui.dialogs.TaskProgressCard
 import com.freefile.ui.dialogs.TextInputDialog
-import com.freefile.ui.dialogs.UserAgreementDialog
 import com.freefile.tools.unzip.CompressionEngine
 import com.freefile.ui.files.FileClipboard
 import com.freefile.ui.files.FilterMode
@@ -229,6 +232,8 @@ fun MainScreen() {
     var showUserAgreement by remember {
         mutableStateOf(!AppSettings.state.value.userAgreementAccepted)
     }
+    // Gallery 功能弹窗：侧拉栏入口
+    var showGallery by remember { mutableStateOf(false) }
     // 跳转对话框
     var showJump by remember { mutableStateOf(false) }
     // 多选操作面板（需求 4：操作按钮触发，含分享/系统打开/内置模块/文件操作）
@@ -281,6 +286,23 @@ fun MainScreen() {
                 ArrayList(pendingFilePaths)
             )
             .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(intent)
+    }
+
+    // 文件管理 Agent：侧拉栏 / 多选菜单入口，可携带预选文件与预填指令
+    fun launchAgent(
+        pendingFilePaths: List<String> = emptyList(),
+        prompt: String? = null
+    ) {
+        val intent = android.content.Intent(context, com.freefile.tools.ai.AgentActivity::class.java)
+            .putStringArrayListExtra(
+                com.freefile.tools.ai.AgentConstants.EXTRA_PATHS,
+                ArrayList(pendingFilePaths)
+            )
+        if (!prompt.isNullOrEmpty()) {
+            intent.putExtra(com.freefile.tools.ai.AgentConstants.EXTRA_PROMPT, prompt)
+        }
+        intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(intent)
     }
 
@@ -340,6 +362,14 @@ fun MainScreen() {
         }
     }
 
+    // 全局文件变更事件 → 刷新正在展示该目录的窗格
+    LaunchedEffect(Unit) {
+        FileChangeBus.changes.collect { dirPath ->
+            if (leftVm.ui.value.path == dirPath) leftVm.refresh()
+            if (rightVm.ui.value.path == dirPath) rightVm.refresh()
+        }
+    }
+
     // 标签 ↔ VM 同步（切换标签时打开对应路径，不产生浏览历史）
     LaunchedEffect(Unit) {
         listOf(Pane.LEFT to leftVm, Pane.RIGHT to rightVm).forEach { (pane, vm) ->
@@ -389,12 +419,22 @@ fun MainScreen() {
         conflicts: List<Conflict>,
         resolution: ConflictResolution
     ) {
+        val sourceDir = entries.firstOrNull()?.path?.substringBeforeLast('/')
         when (kind) {
             OpKind.COPY -> TransferManager.enqueueCopy(entries, targetDir, conflicts, resolution) { ok, msg ->
-                if (!ok) toast(msg)
+                if (ok) {
+                    FileChangeBus.notify(targetDir)
+                    if (leftVm.ui.value.path == targetDir) leftVm.refresh()
+                    if (rightVm.ui.value.path == targetDir) rightVm.refresh()
+                } else toast(msg)
             }
             OpKind.MOVE -> TransferManager.enqueueMove(entries, targetDir, conflicts, resolution) { ok, msg ->
-                if (!ok) toast(msg)
+                if (ok) {
+                    FileChangeBus.notify(targetDir)
+                    sourceDir?.let { FileChangeBus.notify(it) }
+                    if (leftVm.ui.value.path == targetDir) leftVm.refresh()
+                    if (rightVm.ui.value.path == targetDir) rightVm.refresh()
+                } else toast(msg)
             }
             else -> {}
         }
@@ -471,6 +511,14 @@ fun MainScreen() {
                 onOpenToolTray = {
                     scope.launch { leftDrawerState.close() }
                     launchToolTray()
+                },
+                onOpenAgent = {
+                    scope.launch { leftDrawerState.close() }
+                    launchAgent()
+                },
+                onOpenGallery = {
+                    scope.launch { leftDrawerState.close() }
+                    showGallery = true
                 },
                 onAddNetwork = {
                     scope.launch { leftDrawerState.close() }
@@ -761,14 +809,24 @@ fun MainScreen() {
                 }
             }
 
-            // 跳转对话框（需求 2：目录跳转）
+            // 首次启动：功能弹窗（含用户协议入口），同意后不再显示
             if (showUserAgreement) {
-                UserAgreementDialog(
+                GalleryDialog(
+                    firstRun = true,
                     onAccept = {
                         showUserAgreement = false
                         scope.launch { AppSettings.setUserAgreementAccepted(true) }
                     },
                     onDismiss = { showUserAgreement = false }
+                )
+            }
+
+            // 侧拉栏 Gallery 入口
+            if (showGallery) {
+                GalleryDialog(
+                    firstRun = false,
+                    onAccept = {},
+                    onDismiss = { showGallery = false }
                 )
             }
 
@@ -880,11 +938,10 @@ fun MainScreen() {
                 CompressDialog(
                 count = action.entries.size,
                 defaultDestination = action.defaultDestination,
-                onConfirm = { destination, format, level, password, splitMb ->
+                onConfirm = { destination, format, level, splitMb ->
                     val options = CompressionEngine.Options(
                         format = format,
                         level = level,
-                        password = password.trim().ifEmpty { null },
                         splitMb = splitMb
                     )
                     if (java.io.File(destination).exists()) {
@@ -898,6 +955,7 @@ fun MainScreen() {
                                 action.vm.refresh()
                                 action.vm.locateTo(destination)
                                 action.vm.clearSelection()
+                                FileChangeBus.notify(java.io.File(destination).parent ?: destination)
                             } else toast(msg)
                         }
                         pending = null
@@ -916,6 +974,7 @@ fun MainScreen() {
                             action.vm.refresh()
                             action.vm.locateTo(action.destination)
                             action.vm.clearSelection()
+                            FileChangeBus.notify(java.io.File(action.destination).parent ?: action.destination)
                         } else toast(msg)
                     }
                     pending = null
@@ -963,13 +1022,14 @@ fun MainScreen() {
                     context.getString(R.string.dlg_extract_multiple, action.archivePaths.size)
                 },
                 defaultTargetDir = defaultExtractDir(action.archivePaths.first()),
-                onConfirm = { targetDir, password ->
+                onConfirm = { targetDir ->
                     action.archivePaths.forEach { archivePath ->
-                        TransferManager.enqueueExtract(archivePath, targetDir, password) { ok, msg ->
+                        TransferManager.enqueueExtract(archivePath, targetDir) { ok, msg ->
                             if (ok) {
                                 toast(context.getString(R.string.msg_extract_done))
                                 leftVm.refresh()
                                 rightVm.refresh()
+                                FileChangeBus.notify(targetDir)
                             } else toast(msg)
                         }
                     }
@@ -977,6 +1037,8 @@ fun MainScreen() {
                 },
                 onDismiss = { pending = null }
             )
+
+            else -> {}
         }
     }
 
@@ -1047,6 +1109,14 @@ fun MainScreen() {
                         onClick = {
                             showActionSheet = false
                             launchToolTray(selected.map { it.path })
+                        }
+                    )
+                    OpenSheetItem(
+                        icon = Icons.Rounded.SmartToy,
+                        title = stringResource(R.string.ai_action_process),
+                        onClick = {
+                            showActionSheet = false
+                            launchAgent(selected.map { it.path })
                         }
                     )
                     Divider(modifier = Modifier.padding(vertical = 6.dp))
@@ -1245,6 +1315,8 @@ private fun DrawerContent(
     onOpenScript: () -> Unit = {},
     onOpenShare: () -> Unit = {},
     onOpenToolTray: () -> Unit = {},
+    onOpenAgent: () -> Unit = {},
+    onOpenGallery: () -> Unit = {},
     onAddNetwork: () -> Unit = {},
     onClose: () -> Unit = {}
 ) {
@@ -1373,6 +1445,28 @@ private fun DrawerContent(
                     title = stringResource(R.string.tool_tray),
                     subtitle = stringResource(R.string.tool_tray_sub),
                     onClick = onOpenToolTray
+                )
+            }
+            // 文件管理 Agent：必须紧跟「工具托盘」，受设置开关控制，默认可见
+            if (com.freefile.tools.ai.data.AgentSettings.snapshot(drawerContext).entryVisible) {
+                item {
+                    DrawerEntryRow(
+                        icon = Icons.Rounded.SmartToy,
+                        iconTint = MaterialTheme.colorScheme.primary,
+                        title = stringResource(R.string.ai_drawer_entry),
+                        subtitle = stringResource(R.string.ai_drawer_entry_sub),
+                        onClick = onOpenAgent
+                    )
+                }
+            }
+            // Gallery：文件管理 Agent 下方的功能弹窗入口
+            item {
+                DrawerEntryRow(
+                    icon = Icons.Rounded.Collections,
+                    iconTint = MaterialTheme.colorScheme.primary,
+                    title = stringResource(R.string.gallery_title),
+                    subtitle = stringResource(R.string.gallery_sub),
+                    onClick = onOpenGallery
                 )
             }
 

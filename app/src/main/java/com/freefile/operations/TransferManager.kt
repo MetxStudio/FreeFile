@@ -100,7 +100,6 @@ object TransferManager {
     fun enqueueExtract(
         archivePath: String,
         targetDir: String,
-        password: String? = null,
         onCompleted: (ok: Boolean, message: String) -> Unit = { _, _ -> }
     ): Long = enqueue(
         OpKind.EXTRACT,
@@ -109,7 +108,7 @@ object TransferManager {
         )
     ) { progress, cancelled ->
         ArchiveExtractor.extract(
-            archivePath, targetDir, password,
+            archivePath, targetDir,
             onProgress = { f, t, b, tb, cur ->
                 progress(TransferProgress(0, OpKind.EXTRACT, TaskState.RUNNING, cur, f, t, b, tb))
             },

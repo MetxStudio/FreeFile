@@ -1,10 +1,18 @@
 package com.freefile.ui.dialogs
 
+import android.webkit.WebChromeClient
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -16,7 +24,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Collections
+import androidx.compose.material.icons.rounded.Description
+import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material.icons.rounded.MenuBook
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
@@ -32,9 +47,11 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,8 +60,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -94,6 +117,248 @@ fun UserAgreementDialog(
             }
         }
     )
+}
+
+// ==================== Gallery 功能弹窗 ====================
+
+private data class GalleryEntry(
+    val titleRes: Int,
+    val descRes: Int,
+    val icon: ImageVector,
+    val asset: String
+)
+
+private val GALLERY_ENTRIES = listOf(
+    GalleryEntry(
+        R.string.gallery_user_agreement,
+        R.string.gallery_user_agreement_sub,
+        Icons.Rounded.Description,
+        "user_agreement.html"
+    ),
+    GalleryEntry(
+        R.string.gallery_privacy_policy,
+        R.string.gallery_privacy_policy_sub,
+        Icons.Rounded.Lock,
+        "privacy_policy.html"
+    ),
+    GalleryEntry(
+        R.string.gallery_help,
+        R.string.gallery_help_sub,
+        Icons.Rounded.MenuBook,
+        "help.html"
+    ),
+    GalleryEntry(
+        R.string.gallery_about,
+        R.string.gallery_about_sub,
+        Icons.Rounded.Info,
+        "about.html"
+    )
+)
+
+/**
+ * Gallery 功能弹窗：集中展示用户协议、隐私政策、帮助与关于。
+ * 首次启动时以 [firstRun] = true 展示，保留“同意并继续”的协议确认逻辑。
+ */
+@Composable
+fun GalleryDialog(
+    firstRun: Boolean,
+    onAccept: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    var opened by remember { mutableStateOf<GalleryEntry?>(null) }
+    // 文档语言：默认跟随应用语言（English → docs-en，其余回退中文 → docs-ch），可在弹窗内切换
+    val locale = LocalConfiguration.current.locales[0]
+    var docLang by remember(locale) {
+        mutableStateOf(if (locale.language == "en") "en" else "ch")
+    }
+
+    val entry = opened
+    if (entry != null) {
+        GalleryDocDialog(entry = entry, lang = docLang, onBack = { opened = null })
+        return
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = {
+            Icon(
+                Icons.Rounded.Collections,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+        },
+        title = { Text(stringResource(R.string.gallery_title)) },
+        text = {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    stringResource(R.string.gallery_sub),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.height(8.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        stringResource(R.string.gallery_language),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    FilterChip(
+                        selected = docLang == "ch",
+                        onClick = { docLang = "ch" },
+                        label = { Text(stringResource(R.string.gallery_lang_zh)) }
+                    )
+                    FilterChip(
+                        selected = docLang == "en",
+                        onClick = { docLang = "en" },
+                        label = { Text(stringResource(R.string.gallery_lang_en)) }
+                    )
+                }
+                Spacer(Modifier.height(6.dp))
+                GALLERY_ENTRIES.forEach { item ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { opened = item }
+                            .padding(vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            item.icon,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(22.dp)
+                        )
+                        Spacer(Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                stringResource(item.titleRes),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Text(
+                                stringResource(item.descRes),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Icon(
+                            Icons.Rounded.ChevronRight,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            if (firstRun) {
+                TextButton(onClick = onAccept) {
+                    Text(stringResource(R.string.user_agreement_accept))
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(
+                    stringResource(
+                        if (firstRun) R.string.user_agreement_later else R.string.close
+                    )
+                )
+            }
+        }
+    )
+}
+
+/** 全屏展示 assets/docs-ch 或 assets/docs-en 下的 HTML 文档。 */
+@Composable
+private fun GalleryDocDialog(entry: GalleryEntry, lang: String, onBack: () -> Unit) {
+    var failed by remember { mutableStateOf(false) }
+    var pageTitle by remember(lang) { mutableStateOf<String?>(null) }
+    val webRef = remember { mutableStateOf<WebView?>(null) }
+
+    Dialog(
+        onDismissRequest = onBack,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Surface(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.primary)
+                        .padding(horizontal = 4.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            Icons.AutoMirrored.Rounded.ArrowBack,
+                            contentDescription = stringResource(R.string.gallery_back),
+                            tint = Color.White
+                        )
+                    }
+                    Text(
+                        pageTitle ?: stringResource(entry.titleRes),
+                        color = Color.White,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Box(modifier = Modifier.fillMaxSize()) {
+                    AndroidView(
+                        factory = { ctx ->
+                            WebView(ctx).apply {
+                                setBackgroundColor(android.graphics.Color.WHITE)
+                                settings.apply {
+                                    javaScriptEnabled = true
+                                    domStorageEnabled = true
+                                    allowFileAccess = true
+                                    allowContentAccess = true
+                                    useWideViewPort = true
+                                    loadWithOverviewMode = true
+                                }
+                                webViewClient = object : WebViewClient() {
+                                    override fun onReceivedError(
+                                        view: WebView,
+                                        request: WebResourceRequest,
+                                        error: WebResourceError
+                                    ) {
+                                        if (request.isForMainFrame) failed = true
+                                    }
+                                }
+                                webChromeClient = object : WebChromeClient() {
+                                    override fun onReceivedTitle(view: WebView, title: String?) {
+                                        if (!title.isNullOrBlank()) pageTitle = title
+                                    }
+                                }
+                                loadUrl("file:///android_asset/docs-$lang/${entry.asset}")
+                                webRef.value = this
+                            }
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    if (failed) {
+                        Text(
+                            stringResource(R.string.gallery_load_failed),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .padding(24.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose { webRef.value?.destroy() }
+    }
 }
 
 // ==================== 通用文本输入 ====================
@@ -897,17 +1162,16 @@ private fun HorizontalDivider() {
 
 // ==================== 解压确认 ====================
 
-/** 解压确认：展示并允许修改目标目录（默认压缩包同级同名文件夹），可选输入密码。 */
+/** 解压确认：展示并允许修改目标目录（默认压缩包同级同名文件夹）。 */
 @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun ConfirmExtractDialog(
     archiveName: String,
     defaultTargetDir: String,
-    onConfirm: (targetDir: String, password: String) -> Unit,
+    onConfirm: (targetDir: String) -> Unit,
     onDismiss: () -> Unit
 ) {
     var text by remember { mutableStateOf(defaultTargetDir) }
-    var password by remember { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.dlg_extract_name, archiveName)) },
@@ -922,20 +1186,11 @@ fun ConfirmExtractDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text(stringResource(R.string.dlg_extract_password_label)) },
-                    singleLine = true,
-                    visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth()
-                )
             }
         },
         confirmButton = {
             TextButton(
-                onClick = { if (text.isNotBlank()) onConfirm(text.trim(), password) },
+                onClick = { if (text.isNotBlank()) onConfirm(text.trim()) },
                 enabled = text.isNotBlank()
             ) { Text(stringResource(R.string.dlg_extract_start)) }
         },
@@ -945,7 +1200,7 @@ fun ConfirmExtractDialog(
     )
 }
 
-/** 创建压缩包：选择格式、压缩级别、密码（仅 ZIP）、分卷大小（仅 ZIP）。 */
+/** 创建压缩包：选择格式、压缩级别、分卷大小（仅 ZIP）。 */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CompressDialog(
@@ -955,13 +1210,11 @@ fun CompressDialog(
         destination: String,
         format: CompressionEngine.Format,
         level: CompressionEngine.Level,
-        password: String,
         splitMb: Long
     ) -> Unit,
     onDismiss: () -> Unit
 ) {
     var text by remember { mutableStateOf(defaultDestination) }
-    var password by remember { mutableStateOf("") }
     var level by remember { mutableStateOf(CompressionEngine.Level.NORMAL) }
     var format by remember { mutableStateOf(CompressionEngine.Format.ZIP) }
     var splitMbText by remember { mutableStateOf("0") }
@@ -1056,25 +1309,6 @@ fun CompressDialog(
                 }
                 Spacer(Modifier.height(8.dp))
 
-                // 密码（仅 ZIP）
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text(stringResource(R.string.dlg_compress_password_label)) },
-                    singleLine = true,
-                    enabled = isZip,
-                    visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                if (!isZip) {
-                    Text(
-                        stringResource(R.string.dlg_compress_password_zip_only),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.outline
-                    )
-                }
-                Spacer(Modifier.height(8.dp))
-
                 // 分卷大小（仅 ZIP）
                 OutlinedTextField(
                     value = splitMbText,
@@ -1099,7 +1333,6 @@ fun CompressDialog(
                             text.trim(),
                             format,
                             level,
-                            password,
                             splitMb
                         )
                     }

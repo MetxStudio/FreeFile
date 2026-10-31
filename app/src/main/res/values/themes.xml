@@ -3,4 +3,10 @@
 
     <!-- AppCompat 系主题：MainActivity 继承 AppCompatActivity 时必需 -->
     <style name="Theme.FreeFile" parent="Theme.AppCompat.DayNight.NoActionBar" />
+
+    <!-- 启动页：使用主题背景色作为系统启动窗口，避免白屏闪烁 -->
+    <style name="Theme.FreeFile.Splash" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:windowBackground">?android:attr/colorBackground</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
 </resources>

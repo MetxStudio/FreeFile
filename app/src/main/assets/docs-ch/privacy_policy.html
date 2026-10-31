@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#2f6fed">
+<title>FreeFile 隐私政策</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#ffffff; --text:#1f2329; --muted:#6b7480;
+    --line:#e6e9ee; --accent:#2f6fed; --accent-soft:#eef3ff;
+    --warn-bg:#fff8e8; --warn-line:#f0c36d; --info-bg:#eef3ff;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0e1013; --card:#16191e; --text:#e7eaee; --muted:#98a2b0;
+      --line:#252b33; --accent:#7aa6ff; --accent-soft:#1a2332;
+      --warn-bg:#241f14; --warn-line:#6d5620; --info-bg:#1a2332;
+    }
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",
+      "Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+    font-size:16px;line-height:1.75;overflow-wrap:break-word;word-break:break-word;
+  }
+  a{color:var(--accent);text-decoration:none;}
+  .wrap{max-width:820px;margin:0 auto;padding:20px 16px calc(56px + env(safe-area-inset-bottom));}
+  .doc-head{padding:2px 2px 6px;}
+  .doc-head h1{font-size:23px;line-height:1.35;font-weight:700;margin:0 0 6px;letter-spacing:.5px;}
+  .doc-head .sub{margin:0 0 12px;font-size:14px;color:var(--muted);}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;}
+  .meta span{
+    font-size:12px;line-height:1.5;color:var(--accent);background:var(--accent-soft);
+    border-radius:999px;padding:4px 11px;white-space:nowrap;
+  }
+  .notice{
+    margin:18px 0;padding:14px 16px;font-size:14.5px;line-height:1.72;
+    background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:14px;
+  }
+  .summary{
+    margin:18px 0;padding:14px 16px;font-size:14.5px;line-height:1.72;
+    background:var(--info-bg);border:1px solid var(--line);border-radius:14px;
+  }
+  .toc{
+    margin:18px 0;padding:6px 16px 14px;background:var(--card);
+    border:1px solid var(--line);border-radius:14px;
+  }
+  .toc h2{margin:10px 0 8px;font-size:13px;font-weight:600;letter-spacing:2px;color:var(--muted);}
+  .toc ol{margin:0;padding-left:20px;font-size:14.5px;}
+  .toc li{margin:3px 0;}
+  .toc a{color:var(--text);}
+  section.clause{
+    margin:14px 0;padding:16px 16px 6px;background:var(--card);
+    border:1px solid var(--line);border-radius:14px;scroll-margin-top:16px;
+  }
+  section.clause h2{
+    margin:0 0 12px;padding-left:10px;font-size:16.5px;font-weight:700;
+    line-height:1.45;border-left:4px solid var(--accent);
+  }
+  .item{display:flex;gap:8px;margin:0 0 10px;font-size:15px;}
+  .item .num{flex:0 0 auto;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums;}
+  .item .txt{flex:1 1 auto;}
+  ul.sub{margin:-2px 0 12px;padding-left:38px;font-size:14.5px;}
+  ul.sub li{margin:0 0 6px;}
+  .doc-foot{
+    margin-top:26px;padding:16px 8px;text-align:center;font-size:12.5px;
+    line-height:1.8;color:var(--muted);
+  }
+  .doc-foot .line{display:block;width:36px;height:2px;margin:0 auto 12px;background:var(--line);border-radius:2px;}
+  #toTop{
+    position:fixed;right:16px;bottom:calc(20px + env(safe-area-inset-bottom));
+    width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+    font-size:17px;color:var(--accent);background:var(--card);
+    border:1px solid var(--line);border-radius:50%;
+    box-shadow:0 4px 14px rgba(0,0,0,.14);cursor:pointer;opacity:0;
+    pointer-events:none;transform:translateY(8px);
+    transition:opacity .2s ease, transform .2s ease;-webkit-tap-highlight-color:transparent;
+  }
+  #toTop.show{opacity:1;pointer-events:auto;transform:none;}
+  #toTop:active{transform:scale(.94);}
+  @media (min-width:600px){
+    body{font-size:16.5px;} .doc-head h1{font-size:27px;}
+    section.clause{padding:20px 22px 8px;} .item{font-size:15.5px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="doc-head">
+    <h1>FreeFile 隐私政策</h1>
+    <p class="sub">本政策说明 FreeFile 如何处理与保护您的信息，请在使用前仔细阅读</p>
+    <div class="meta">
+      <span>版本：v1.0</span>
+      <span>更新日期：2025-01-01</span>
+      <span>生效日期：同更新日期</span>
+      <span>MIT License</span>
+    </div>
+  </header>
+
+  <div class="notice">
+    <strong>重要说明：</strong>FreeFile 是开源文件管理工具，核心文件管理功能以<strong>本地处理</strong>为主。
+    我们不会仅因您安装本应用而主动上传您的文件内容。若您使用需要联网的功能、第三方工具或第三方服务，
+    相关请求可能涉及必要的信息处理，具体以本政策说明为准。请在使用前阅读并理解本政策。
+  </div>
+
+  <div class="summary">
+    <strong>摘要：</strong>我们尽量遵循“最小必要”原则处理信息。文件浏览、复制、移动、删除、重命名、压缩、解压等核心操作通常在您的设备本地完成；
+    我们不会出售您的个人信息；您应谨慎处理敏感文件与权限；第三方组件与服务受其各自条款约束。
+  </div>
+
+  <nav class="toc" aria-label="目录">
+    <h2>目 录</h2>
+    <ol>
+      <li><a href="#p1">引言与适用范围</a></li>
+      <li><a href="#p2">定义</a></li>
+      <li><a href="#p3">我们处理的信息类型</a></li>
+      <li><a href="#p4">处理目的与处理原则</a></li>
+      <li><a href="#p5">本地处理与网络传输说明</a></li>
+      <li><a href="#p6">设备权限说明</a></li>
+      <li><a href="#p7">信息的共享、转让与公开披露</a></li>
+      <li><a href="#p8">信息存储地点与期限</a></li>
+      <li><a href="#p9">信息安全保护</a></li>
+      <li><a href="#p10">您的权利</a></li>
+      <li><a href="#p11">未成年人保护</a></li>
+      <li><a href="#p12">第三方组件与第三方服务</a></li>
+      <li><a href="#p13">本政策的更新</a></li>
+      <li><a href="#p14">联系我们</a></li>
+    </ol>
+  </nav>
+
+  <section class="clause" id="p1">
+    <h2>一、引言与适用范围</h2>
+    <p class="item"><span class="num">1.1</span><span class="txt">本隐私政策（以下称“本政策”）由 FreeFile 项目作者/分发者（以下称“我们”）制定，用于说明您在安装、使用 FreeFile 应用（以下称“本应用”）过程中，我们如何收集、使用、存储、共享和保护相关信息，以及您享有的相关权利。</span></p>
+    <p class="item"><span class="num">1.2</span><span class="txt">本政策适用于 FreeFile 应用及其随附功能。本应用为开源项目，源码发布于 <a href="https://github.com/MetxStudio/FreeFile" target="_blank" rel="noopener">https://github.com/MetxStudio/FreeFile</a>，采用 MIT License。开源代码的公开不等于您的个人信息或文件内容会被公开。</span></p>
+    <p class="item"><span class="num">1.3</span><span class="txt">本政策不适用于第三方组件、第三方服务或您通过本应用访问的第三方网站/服务。第三方有其独立的隐私政策，请您在使用前自行阅读。</span></p>
+    <p class="item"><span class="num">1.4</span><span class="txt">本政策与《FreeFile 用户协议》共同构成您使用本应用的完整约定。如本政策与用户协议在个人信息处理事项上存在不一致，以本政策为准。</span></p>
+  </section>
+
+  <section class="clause" id="p2">
+    <h2>二、定义</h2>
+    <p class="item"><span class="num">2.1</span><span class="txt">“个人信息”指以电子或其他方式记录的与已识别或可识别的自然人有关的各种信息，不包括匿名化处理后的信息。</span></p>
+    <p class="item"><span class="num">2.2</span><span class="txt">“本地处理”指相关信息仅在您的设备上处理，未由我们主动上传至我们控制的服务器。</span></p>
+    <p class="item"><span class="num">2.3</span><span class="txt">“设备与运行信息”可能包括设备型号、操作系统版本、应用版本、语言设置、网络类型、IP 地址、请求时间、崩溃或诊断日志等，具体取决于实际功能与您使用的服务。</span></p>
+    <p class="item"><span class="num">2.4</span><span class="txt">“第三方服务”指由第三方提供、可能通过本应用调用或集成的网络服务、工具、库或组件。</span></p>
+  </section>
+
+  <section class="clause" id="p3">
+    <h2>三、我们处理的信息类型</h2>
+    <p class="item"><span class="num">3.1</span><span class="txt">您主动选择处理的文件与路径信息。当您使用文件浏览、复制、移动、删除、重命名、压缩、解压等功能时，本应用需要访问您选择的文件、文件夹及其路径信息，以完成相应操作。此类信息通常在设备本地处理。我们不会仅因您安装本应用而主动上传您的文件内容。</span></p>
+    <p class="item"><span class="num">3.2</span><span class="txt">设备与运行信息。在您使用需要联网的功能、下载更新、访问第三方服务或发生错误诊断时，相关请求可能包含设备型号、操作系统版本、应用版本、语言、网络类型、IP 地址、时间戳及必要的日志信息。此类信息用于完成网络请求、保障服务安全、排查故障和改进兼容性。</span></p>
+    <p class="item"><span class="num">3.3</span><span class="txt">权限相关信息。为实现文件管理、网络访问、应用安装等功能，本应用可能请求存储/文件访问、网络、安装应用等系统权限。我们仅在实现相应功能所必需的范围内请求权限，您可以在系统设置中管理或撤销授权。</span></p>
+    <p class="item"><span class="num">3.4</span><span class="txt">您主动提供的信息。当您通过 GitHub Issue、邮件或其他方式联系我们时，您可能主动提供账号名称、联系方式、问题描述、日志或截图等信息。请您避免在公开渠道提交敏感个人信息、机密文件内容或他人个人信息。</span></p>
+    <p class="item"><span class="num">3.5</span><span class="txt">第三方组件产生的信息。本应用集成或调用的第三方库、工具或服务可能依据其自身隐私政策处理信息。我们建议您在使用相关功能前阅读第三方条款。我们不会控制第三方独立的个人信息处理行为。</span></p>
+    <p class="item"><span class="num">3.6</span><span class="txt">我们不会主动收集您的通讯录、短信、通话记录、精确位置、生物识别信息或健康信息，除非某项具体功能明确需要并在界面中另行说明并取得必要授权。</span></p>
+  </section>
+
+  <section class="clause" id="p4">
+    <h2>四、处理目的与处理原则</h2>
+    <p class="item"><span class="num">4.1</span><span class="txt">我们处理相关信息的目的包括：提供文件管理与工具功能；完成您主动发起的操作；实现网络访问与第三方服务调用；保障应用与设备安全；排查崩溃、错误和兼容性问题；响应您的咨询、投诉或 Issue；遵守法律法规要求。</span></p>
+    <p class="item"><span class="num">4.2</span><span class="txt">我们遵循合法、正当、必要和诚信原则，尽量以最小必要范围处理信息。对于本地文件操作，相关信息通常在您的设备内完成处理，不必然传输至我们。</span></p>
+    <p class="item"><span class="num">4.3</span><span class="txt">在适用法律要求的情况下，我们处理个人信息所依据的合法性基础可能包括：您的同意；履行您作为一方当事人的合同所必需；履行法定义务所必需；应对突发公共卫生事件或紧急情况下保护自然人生命健康和财产安全所必需；在合理范围内处理您自行公开或其他已合法公开的信息；以及法律法规规定的其他情形。</span></p>
+    <p class="item"><span class="num">4.4</span><span class="txt">如我们需要将信息用于本政策未载明的其他目的，或将基于特定目的收集的信息用于其他目的，我们将依法另行告知并取得必要同意。</span></p>
+  </section>
+
+  <section class="clause" id="p5">
+    <h2>五、本地处理与网络传输说明</h2>
+    <p class="item"><span class="num">5.1</span><span class="txt">FreeFile 的核心文件管理功能以本地处理为主。文件浏览、复制、移动、删除、重命名、压缩、解压等操作通常直接发生在您的设备上，相关文件内容不会仅因您安装或打开本应用而被我们主动上传。</span></p>
+    <p class="item"><span class="num">5.2</span><span class="txt">当您使用需要联网的功能时，本应用可能向相应服务器或第三方服务发送完成请求所必需的信息，例如请求地址、必要的参数、设备与网络信息、时间戳等。具体传输内容取决于实际功能。</span></p>
+    <p class="item"><span class="num">5.3</span><span class="txt">如您选择将文件上传、分享、发送至第三方服务或通过网络传输文件，相关文件内容及传输信息将由您主动发起，并可能受第三方服务条款和隐私政策约束。请您在传输前确认接收方、传输目的和数据的敏感性。</span></p>
+    <p class="item"><span class="num">5.4</span><span class="txt">互联网传输和存储并非绝对安全。我们将采取合理措施保护信息，但无法保证任何传输或存储方式绝对安全。请您避免通过不安全网络传输敏感数据。</span></p>
+  </section>
+
+  <section class="clause" id="p6">
+    <h2>六、设备权限说明</h2>
+    <p class="item"><span class="num">6.1</span><span class="txt">文件/存储访问权限：用于浏览、读取、复制、移动、删除、重命名、压缩、解压您选择的文件和文件夹。拒绝授权可能导致相关文件管理功能无法使用。</span></p>
+    <p class="item"><span class="num">6.2</span><span class="txt">网络权限：用于访问网络、下载更新、调用在线功能或第三方服务。拒绝授权可能导致联网功能不可用。</span></p>
+    <p class="item"><span class="num">6.3</span><span class="txt">安装应用权限：如本应用提供应用安装或更新相关功能，可能需要安装应用权限。该权限仅在您主动使用相应功能时使用，您可以随时在系统设置中关闭。</span></p>
+    <p class="item"><span class="num">6.4</span><span class="txt">其他权限：如某项具体功能需要其他系统权限，我们会在相应界面或系统授权弹窗中说明用途。您有权拒绝或撤销授权，但可能影响对应功能的使用。</span></p>
+  </section>
+
+  <section class="clause" id="p7">
+    <h2>七、信息的共享、转让与公开披露</h2>
+    <p class="item"><span class="num">7.1</span><span class="txt">我们不会出售您的个人信息。</span></p>
+    <p class="item"><span class="num">7.2</span><span class="txt">我们不会向第三方共享您的个人信息，除非存在以下情形：取得您的明确同意；为完成您主动发起的操作所必需；为提供您请求的第三方服务所必需；根据法律法规、司法或行政机关的强制性要求；为保护您、我们或他人的合法权益、财产安全或公共安全所必需；在涉及合并、分立、解散、被宣告破产等情形时，依法转移并继续受本政策约束。</span></p>
+    <p class="item"><span class="num">7.3</span><span class="txt">如涉及个人信息转让，我们会告知您接收方的名称和联系方式，并要求接收方继续履行本政策义务；接收方变更原处理目的或方式的，将依法重新取得您的同意。</span></p>
+    <p class="item"><span class="num">7.4</span><span class="txt">我们不会公开披露您的个人信息，除非取得您的单独同意，或法律法规另有规定。</span></p>
+    <p class="item"><span class="num">7.5</span><span class="txt">您通过 GitHub Issue 等公开渠道主动提交的信息可能被公众看到。请勿在公开渠道提交敏感个人信息、机密信息或他人个人信息。</span></p>
+  </section>
+
+  <section class="clause" id="p8">
+    <h2>八、信息存储地点与期限</h2>
+    <p class="item"><span class="num">8.1</span><span class="txt">本应用的核心文件管理功能以本地处理为主，相关文件与配置通常存储在您的设备上。您应自行负责设备数据的安全与备份。</span></p>
+    <p class="item"><span class="num">8.2</span><span class="txt">对于因联网功能、诊断或您联系我们而产生的信息，我们将在实现处理目的所必需的最短期限内保存，法律法规另有规定或为处理争议所必需的除外。</span></p>
+    <p class="item"><span class="num">8.3</span><span class="txt">如相关信息无需继续保留，我们将依据适用法律采取删除或匿名化等措施。第三方服务存储信息的地点和期限以其隐私政策为准。</span></p>
+  </section>
+
+  <section class="clause" id="p9">
+    <h2>九、信息安全保护</h2>
+    <p class="item"><span class="num">9.1</span><span class="txt">我们采取合理的技术和管理措施保护相关信息，防止未经授权的访问、泄露、篡改、丢失或滥用。例如，限制不必要的访问、遵循最小权限原则、及时处理安全问题和更新版本。</span></p>
+    <p class="item"><span class="num">9.2</span><span class="txt">请您妥善保管设备、账号和权限配置，避免在不受信任的设备或网络环境中处理敏感文件。如您发现安全风险或漏洞，可通过项目仓库联系我们。</span></p>
+    <p class="item"><span class="num">9.3</span><span class="txt">若发生个人信息安全事件，我们将依据适用法律及时采取补救措施，并在必要时向您告知事件情况、可能影响、已采取的措施及您可采取的防范建议。</span></p>
+  </section>
+
+  <section class="clause" id="p10">
+    <h2>十、您的权利</h2>
+    <p class="item"><span class="num">10.1</span><span class="txt">在适用法律允许的范围内，您有权访问、更正、补充、删除您的个人信息，撤回同意，或要求解释说明本政策。</span></p>
+    <p class="item"><span class="num">10.2</span><span class="txt">您可以在系统设置中管理或撤销应用权限；如需行使其他权利，可通过本政策“联系我们”部分提出请求。我们将在核实身份后依法处理。</span></p>
+    <p class="item"><span class="num">10.3</span><span class="txt">撤回同意不影响撤回前基于同意已进行的处理活动的效力。若您撤回同意导致某项功能无法使用，相应后果由您承担。</span></p>
+    <p class="item"><span class="num">10.4</span><span class="txt">如您认为我们的个人信息处理行为损害了您的合法权益，您可向有管辖权的监管机构投诉或依法提起诉讼。</span></p>
+  </section>
+
+  <section class="clause" id="p11">
+    <h2>十一、未成年人保护</h2>
+    <p class="item"><span class="num">11.1</span><span class="txt">本应用主要面向具备相应民事行为能力的用户。如您为未满 18 周岁的未成年人，请在监护人陪同下阅读本政策，并在取得监护人同意后使用本应用。</span></p>
+    <p class="item"><span class="num">11.2</span><span class="txt">监护人应指导未成年人正确使用文件管理功能，避免处理敏感文件、泄露个人信息或进行未经授权的操作。</span></p>
+    <p class="item"><span class="num">11.3</span><span class="txt">如我们发现在未取得监护人同意的情况下处理了未成年人的个人信息，将依法采取删除等必要措施。</span></p>
+  </section>
+
+  <section class="clause" id="p12">
+    <h2>十二、第三方组件与第三方服务</h2>
+    <p class="item"><span class="num">12.1</span><span class="txt">本应用可能集成或调用第三方库、工具及服务。第三方组件受其各自的许可证、服务条款和隐私政策约束。</span></p>
+    <p class="item"><span class="num">12.2</span><span class="txt">第三方服务可能独立收集、使用或共享信息，我们无法控制其独立的个人信息处理行为。您在使用第三方服务前，应自行阅读并同意其隐私政策。</span></p>
+    <p class="item"><span class="num">12.3</span><span class="txt">对于第三方内容或第三方服务引起的隐私问题，请依据第三方提供的联系方式与其沟通；我们将在合理范围内提供必要协助。</span></p>
+  </section>
+
+  <section class="clause" id="p13">
+    <h2>十三、本政策的更新</h2>
+    <p class="item"><span class="num">13.1</span><span class="txt">我们可能根据功能调整、法律法规变化或安全需求更新本政策。更新后的政策将在应用内或项目页面公布，并标明更新日期与生效日期。</span></p>
+    <p class="item"><span class="num">13.2</span><span class="txt">如更新涉及重大变更（例如处理目的、信息类型或共享方式发生实质性变化），我们将依法通过显著方式通知您，并在必要时重新取得您的同意。</span></p>
+    <p class="item"><span class="num">13.3</span><span class="txt">若您在本政策更新生效后继续使用本应用，即视为您已阅读并接受更新后的政策；如您不同意，应停止使用并卸载本应用。</span></p>
+  </section>
+
+  <section class="clause" id="p14">
+    <h2>十四、联系我们</h2>
+    <p class="item"><span class="num">14.1</span><span class="txt">如您对本政策、个人信息处理或本应用隐私保护有任何疑问、意见、投诉或请求，可通过项目仓库 <a href="https://github.com/MetxStudio/FreeFile" target="_blank" rel="noopener">https://github.com/MetxStudio/FreeFile</a> 提交 Issue，或联系项目维护者。</span></p>
+    <p class="item"><span class="num">14.2</span><span class="txt">为保护您的信息安全，我们可能需要核实您的身份后再处理相关请求。我们将在合理期限内予以答复。</span></p>
+  </section>
+
+  <footer class="doc-foot">
+    <span class="line"></span>
+    FreeFile 为开源项目，采用 MIT License 授权<br>
+    本政策与《FreeFile 用户协议》共同适用于本应用<br>
+    © FreeFile Project
+  </footer>
+</div>
+
+<button id="toTop" type="button" aria-label="回到顶部">↑</button>
+<script>
+  (function () {
+    var btn = document.getElementById('toTop');
+    function onScroll() {
+      if (window.scrollY > 400) btn.classList.add('show');
+      else btn.classList.remove('show');
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    btn.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    onScroll();
+  })();
+</script>
+</body>
+</html>
